@@ -51,3 +51,5 @@ html_content = """
 
 excel_path = 'path/to/your/excel_file.xlsx'
 sheet_name = 'Sheet1'
+
+update_excel_with_html(html_content, excel_path, sheet_name)
