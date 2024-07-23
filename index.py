@@ -48,3 +48,5 @@ html_content = """
     <tr><td>2023-07-21</td><td>Station B</td><td>Value B1</td><td>Value B2</td></tr>
 </table>
 """
+
+excel_path = 'path/to/your/excel_file.xlsx'
