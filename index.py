@@ -9,3 +9,4 @@ def extract_html_table(html_content):
 
 def update_excel_with_html(html_content, excel_path, sheet_name):
     # Function to update Excel file with HTML data
+    html_df = extract_html_table(html_content)
