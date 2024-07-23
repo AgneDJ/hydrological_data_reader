@@ -5,6 +5,10 @@ import openpyxl
 
 def extract_html_table(html_content):
     # Function to extract data from HTML table
+    soup = BeautifulSoup(html_content, 'html.parser')
+    table = soup.find('table')
+    html_df = pd.read_html(str(table))[0]
+    return html_df
 
 
 def update_excel_with_html(html_content, excel_path, sheet_name):
