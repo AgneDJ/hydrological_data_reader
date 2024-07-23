@@ -40,3 +40,11 @@ def update_excel_with_html(html_content, excel_path, sheet_name):
             writer.book = openpyxl.load_workbook(excel_path)
             writer.sheets = {ws.title: ws for ws in writer.book.worksheets}
             updated_df.to_excel(writer, sheet_name=sheet_name, index=False)
+
+html_content = """
+<table>
+    <tr><th>Date</th><th>Station Name</th><th>Data1</th><th>Data2</th></tr>
+    <tr><td>2023-07-20</td><td>Station A</td><td>Value A1</td><td>Value A2</td></tr>
+    <tr><td>2023-07-21</td><td>Station B</td><td>Value B1</td><td>Value B2</td></tr>
+</table>
+"""
