@@ -2,25 +2,26 @@ import pandas as pd
 import re
 
 # Load the data file
-file_path = r'C:\Users\agned\Desktop\Daily Hydro Situation\hydrological_data_reader\for_hymer\extracted_data.csv'
+file_path = r"\\192.168.1.30\Dokumentai\PPS\2. Išoriniai\Hidrologinės prognozės\@ Prognozės\Test\Hymer"
 with open(file_path, 'r', encoding='utf-8') as file:
     lines = file.readlines()
 
-# Define the list of station names to filter by
+
+# Define the list of station names to filter by, ordered as specified
 stations_to_keep = [
-    "Danė - Klaipėda", "Akmena - Paakmenis", "Atmata - Rusnė", "Aunuva - Aunuvėnai", "Bartuva - Skuodas",
-    "Dubysa - Lyduvėnai", "Gėgė - Plaškiai", "Jūra - Tauragė", "Kražantė - Pluskiai", "Leitė - Kūlynai",
-    "Lėvuo - Bernatoniai", "Lėvuo - Kupiškis", "Merkys - Jašiūnai", "Merkys - Puvočiai", "Minija - Kartena",
-    "Minija - Lankupiai", "Minija - Priekulė", "Mituva - Žindaičiai", "Mūša - Ustukiai", "Mūša - Žilpamūšis",
-    "Nemunas - Birštonas", "Nemunas - Darsūniškis", "Nemunas - Druskininkai", "Nemunas, Kaunas (nauja VMS 2021 m)",
-    "Nemunas - Lampėdžiai", "Nemunas - Lazdėnai", "Nemunas - Nemajūnai", "Nemunas - Panemunė", "Nemunas - Šilininkai",
-    "Nemunas - Smalininkai", "Nemunėlis - Tabokinė", "Neris - Buivydžiai", "Neris - Vilnius", "Neris - Jonava",
-    "Nevėžis - Traupis", "Nevėžis - Panevėžys", "Šalčia - Valkininkai", "Sanžilės kan. - Bernatoniai",
-    "Šešupė - Kudirkos Naumiestis", "Šešuvis - Skirgailai", "Širvinta - Liukonys", "Skroblus - Dubininkas",
-    "Smardonė - Likėnai", "Strėva - Semeliškės", "Šušvė - Josvainiai", "Šušvė - Šiaulėnai", "Šventoji - Anykščiai",
-    "Šventoji - Šventoji", "Šventoji - Ukmergė", "Svyla - Guntauninkai", "Šyša - Šilutė", "Tatula - Trečionys",
-    "Tenenys - Miestaliai", "Ūla - Zervynos", "Upita - Eidukai", "Varėnė - Varėna", "Venta - Leckava", "Venta - Papilė",
-    "Verknė, Verbyliškės", "Vilnia - Vilnius", "Yslykis, Kyburiai", "Žeimena - Pabradė"
+    "Svyla - Guntauninkai", "Nemunėlis - Tabokinė", "Mūša - Ustukiai", "Mūša - Žilpamūšis", "Lėvuo - Kupiškis",
+    "Lėvuo - Bernatoniai", "Tatula - Trečionys", "Smardonė - Likėnai", "Yslykis, Kyburiai", "Venta - Papilė",
+    "Venta - Leckava", "Aunuva - Aunuvėnai", "Bartuva - Skuodas", "Atmata - Rusnė", "Nemunas - Druskininkai",
+    "Nemunas - Nemajūnai", "Nemunas, Kaunas (nauja VMS 2021 m)", "Nemunas - Lampėdžiai", "Nemunas - Smalininkai",
+    "Nemunas - Panemunė", "Nemunas - Šilininkai", "Nemunas - Lazdėnai", "Merkys - Jašiūnai", "Merkys - Puvočiai",
+    "Šalčia - Valkininkai", "Ūla - Zervynos", "Skroblus - Dubininkas", "Varėnė - Varėna", "Verknė, Verbyliškės",
+    "Strėva - Semeliškės", "Neris - Buivydžiai", "Neris - Vilnius", "Neris - Jonava", "Žeimena - Pabradė",
+    "Vilnia - Vilnius", "Šventoji - Anykščiai", "Šventoji - Ukmergė", "Širvinta - Liukonys", "Nevėžis - Traupis",
+    "Nevėžis - Panevėžys", "Sanžilės kan. - Bernatoniai", "Šušvė - Šiaulėnai", "Šušvė - Josvainiai",
+    "Dubysa - Lyduvėnai", "Kražantė - Pluskiai", "Mituva - Žindaičiai", "Šešupė - Kudirkos Naumiestis",
+    "Jūra - Tauragė", "Akmena - Paakmenis", "Šešuvis - Skirgailai", "Minija - Kartena", "Minija - Lankupiai",
+    "Upita - Eidukai", "Minija - Priekulė", "Nemunas - Birštonas", "Nemunas - Darsūniškis", "Šyša - Šilutė",
+    "Leitė - Kūlynai", "Danė - Klaipėda", "Gėgė - Plaškiai", "Tenenys - Miestaliai", "Šventoji - Šventoji"
 ]
 
 # Define a list to store structured data
@@ -56,10 +57,22 @@ df_structured = pd.DataFrame(structured_data, columns=[
                              "Location", "Last Updated", "Water Level (cm)", "Water Temperature (C)", "Water Salinity (g/m3)"])
 
 # Filter the DataFrame to include only rows with the specified station names
-filtered_df = df_structured[df_structured['Location'].isin(stations_to_keep)]
+filtered_df = df_structured[df_structured['Location'].isin(
+    stations_to_keep)].copy()
 
-# Save the filtered DataFrame to an .xlsx file in the new directory
-output_file_path = r'\\192.168.1.30\Dokumentai\PPS\2. Išoriniai\Hidrologinės prognozės\@ Prognozės\Test\Hymer\filtered_data.xlsx'
-filtered_df.to_excel(output_file_path, index=False, engine='openpyxl')
+# Set the categorical type for "Location" to ensure the custom order is maintained
+filtered_df['Location'] = pd.Categorical(
+    filtered_df['Location'], categories=stations_to_keep, ordered=True)
 
-print("Filtered data has been saved to", output_file_path)
+# Sort the DataFrame by "Location" based on the defined order
+filtered_df = filtered_df.sort_values('Location')
+
+# Define both output paths
+output_file_path1 = r'\\192.168.1.30\Dokumentai\PPS\2. Išoriniai\Hidrologinės prognozės\@ Prognozės\Test\Hymer\Hymer duomenys.xlsx'
+output_file_path2 = r'C:\Users\agned\Desktop\Daily Hydro Situation\hydrological_data_reader\Completed files\Hymer duomenys.xlsx'
+
+# Save the filtered and ordered DataFrame to both .xlsx files
+filtered_df.to_excel(output_file_path1, index=False, engine='openpyxl')
+filtered_df.to_excel(output_file_path2, index=False, engine='openpyxl')
+
+print("Filtered and ordered data has been saved to both locations.")
