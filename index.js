@@ -272,6 +272,7 @@ const runBasedOnTimeWindow = async () => {
     await workbook.xlsx.readFile(pathEx); // Read Excel file
     const sheet = workbook.getWorksheet("Pokytis dienos metu"); // Access the 'Pokytis dienos metu' sheet
 
+    await fetchData("weather_data_13.csv");
     const weatherDataCSV = fs.readFileSync("weather_data_13.csv", "utf8");
     const weatherDataRows = weatherDataCSV
       .split("\n")
@@ -282,7 +283,6 @@ const runBasedOnTimeWindow = async () => {
     for (let i = 4; i <= 65; i++) {
       sheet.getCell(`C${i}`).value = null;
     }
-    await fetchData("weather_data_13.csv");
 
     const columnMapping13 = {
       4: "C", // CSV column E -> Excel column C
@@ -315,6 +315,8 @@ const runBasedOnTimeWindow = async () => {
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile(pathEx); // Read Excel file
     const sheet = workbook.getWorksheet("Pokytis dienos metu"); // Access the 'Pokytis dienos metu' sheet
+
+    await fetchData("weather_data_16.csv");
     const weatherDataCSV = fs.readFileSync("weather_data_16.csv", "utf8");
     const weatherDataRows = weatherDataCSV
       .split("\n")
@@ -325,7 +327,6 @@ const runBasedOnTimeWindow = async () => {
     for (let i = 4; i <= 65; i++) {
       sheet.getCell(`D${i}`).value = null;
     }
-    await fetchData("weather_data_16.csv");
 
     const columnMapping16 = {
       4: "D", // CSV column E -> Excel column D
