@@ -2,7 +2,7 @@ import pandas as pd
 import re
 
 # Load the data file
-file_path = r"\\192.168.1.30\Dokumentai\PPS\2. Išoriniai\Hidrologinės prognozės\@ Prognozės\Test\Hymer"
+file_path = r"C:\Users\agned\Desktop\Daily Hydro Situation\hydrological_data_reader\extracted_data.csv"
 with open(file_path, 'r', encoding='utf-8') as file:
     lines = file.readlines()
 
