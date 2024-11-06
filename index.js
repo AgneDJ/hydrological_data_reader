@@ -352,7 +352,7 @@ const runBasedOnTimeWindow = async () => {
   }
 
   // 18:00 Task
-  else if (currentHour >= 18 && currentHour < 20) {
+  else if (currentHour >= 18 && currentHour < 24) {
     console.log(currentHour);
     console.log("Starting task: 18:00 for sheet: Pokytis dienos metu");
 
@@ -372,7 +372,7 @@ const runBasedOnTimeWindow = async () => {
       sheet.getCell(`F${i}`).value = null;
     }
 
-    const columnMapping16 = {
+    const columnMapping18 = {
       4: "F", // CSV column E -> Excel column F
     };
 
@@ -391,7 +391,7 @@ const runBasedOnTimeWindow = async () => {
       columnMapping18, // Mapping from CSV columns to Excel columns
       "P", // Pinns in P4:P65 in the Excel sheet
       "P", // Column P contains pinns to match
-      "18:00" // Only add rows where column F contains 18:00 utc in date-time
+      "16:00" // Only add rows where column F contains 18:00 utc in date-time
     );
   }
 };
