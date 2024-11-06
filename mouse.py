@@ -16,7 +16,7 @@ tasks = {
     "16:00": ["C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\index.js",
               "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\index.js",
               "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\excel_table.py"],
-    "18:00": ["C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\index.js",
+    "18:20": ["C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\index.js",
               "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\index.js",
               "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\excel_table.py"]
 }
