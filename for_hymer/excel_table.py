@@ -1,5 +1,6 @@
 import pandas as pd
 import re
+from datetime import datetime
 
 # Load the data file
 file_path = r"C:\Users\agned\Desktop\Daily Hydro Situation\hydrological_data_reader\extracted_data.csv"
@@ -64,15 +65,28 @@ filtered_df = df_structured[df_structured['Location'].isin(
 filtered_df['Location'] = pd.Categorical(
     filtered_df['Location'], categories=stations_to_keep, ordered=True)
 
-# Sort the DataFrame by "Location" based on the defined order
-filtered_df = filtered_df.sort_values('Location')
+# # Sort the DataFrame by "Location" based on the defined order
+# filtered_df = filtered_df.sort_values('Location')
 
-# Define both output paths
-output_file_path1 = r'\\192.168.1.30\Dokumentai\PPS\2. Išoriniai\Hidrologinės prognozės\@ Prognozės\Test\Hymer\Hymer duomenys.xlsx'
-output_file_path2 = r'C:\Users\agned\Desktop\Daily Hydro Situation\hydrological_data_reader\Completed files\Hymer duomenys.xlsx'
+# # Define both output paths
+# output_file_path1 = r'\\192.168.1.30\Dokumentai\PPS\2. Išoriniai\Hidrologinės prognozės\@ Prognozės\Test\Hymer\Hymer duomenys.xlsx'
+# output_file_path2 = r'C:\Users\agned\Desktop\Daily Hydro Situation\hydrological_data_reader\Completed files\Hymer duomenys.xlsx'
 
-# Save the filtered and ordered DataFrame to both .xlsx files
+# # Save the filtered and ordered DataFrame to both .xlsx files
+# filtered_df.to_excel(output_file_path1, index=False, engine='openpyxl')
+# filtered_df.to_excel(output_file_path2, index=False, engine='openpyxl')
+
+# print("Filtered and ordered data has been saved to both locations.")
+
+# Create a timestamp for the filename
+timestamp = datetime.now().strftime("%Y-%m-%d__%H:%M")
+output_file_name = f"Hymer duomenys_{timestamp}.xlsx"
+
+# Define output path with dynamic filename
+output_file_path1 = f'\\\\192.168.1.30\\Dokumentai\\PPS\\2. Išoriniai\\Hidrologinės prognozės\\@ Prognozės\\Test\\Hymer\\{
+    output_file_name}'
+
+# Save the filtered and ordered DataFrame to the new file with a timestamped name
 filtered_df.to_excel(output_file_path1, index=False, engine='openpyxl')
-filtered_df.to_excel(output_file_path2, index=False, engine='openpyxl')
 
-print("Filtered and ordered data has been saved to both locations.")
+print(f"Filtered and ordered data has been saved to: {output_file_path1}")
