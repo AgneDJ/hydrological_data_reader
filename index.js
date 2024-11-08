@@ -264,9 +264,9 @@ const runBasedOnTimeWindow = async () => {
     console.log("Shift and date update complete.");
   }
 
-  // 13:00 Task
+  // 13:10 Task
   else if (currentHour >= 13 && currentHour < 16) {
-    console.log("Starting task: 13:00 for sheet: Pokytis dienos metu");
+    console.log("Starting task: 13:10 for sheet: Pokytis dienos metu");
 
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile(pathEx); // Read Excel file
@@ -281,36 +281,36 @@ const runBasedOnTimeWindow = async () => {
 
     // Clear new data columns before adding
     for (let i = 4; i <= 65; i++) {
-      sheet.getCell(`C${i}`).value = null;
+      sheet.getCell(`D${i}`).value = null;
     }
 
     const columnMapping13 = {
-      4: "C", // CSV column E -> Excel column C
+      4: "D", // CSV column E -> Excel column D
     };
 
-    // Update C2 with the date from weather_data_13.csv
-    sheet.getCell("C2").value = dateFromWeatherData;
+    // Update D2 with the date from weather_data_13.csv
+    sheet.getCell("D2").value = dateFromWeatherData;
 
     await workbook.xlsx.writeFile(pathEx); // Save changes to the Excel file
 
-    console.log(`Updated C2 with date: ${dateFromWeatherData}`);
+    console.log(`Updated D2 with date: ${dateFromWeatherData}`);
 
-    // Update the Excel file for 13:00 task
+    // Update the Excel file for 13:10 task
     await updateExcelFromCSV(
       "weather_data_13.csv", // CSV file to use
       pathEx, // Excel file to update
       "Pokytis dienos metu", // Sheet to update
       columnMapping13, // Mapping from CSV columns to Excel columns
-      "P", // Pinns in P4:P65 in the Excel sheet
-      "P", // Column P contains pinns to match
-      "10:00" // Only add rows where column D contains 10:00 utc in date-time
+      "S", // Pinns in S4:S65 in the Excel sheet
+      "S", // Column P contains pinns to match
+      "11:00" // Only add rows where column D contains 11:00 utc in date-time
     );
   }
 
-  // 16:00 Task
+  // 16:10 Task
   else if (currentHour >= 16 && currentHour < 18) {
     console.log(currentHour);
-    console.log("Starting task: 16:00 for sheet: Pokytis dienos metu");
+    console.log("Starting task: 16:10 for sheet: Pokytis dienos metu");
 
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile(pathEx); // Read Excel file
@@ -325,36 +325,36 @@ const runBasedOnTimeWindow = async () => {
 
     // Clear new data columns before adding
     for (let i = 4; i <= 65; i++) {
-      sheet.getCell(`D${i}`).value = null;
+      sheet.getCell(`F${i}`).value = null;
     }
 
     const columnMapping16 = {
-      4: "D", // CSV column E -> Excel column D
+      4: "F", // CSV column E -> Excel column F
     };
 
-    // Update D2 with the date from weather_data_16.csv
-    sheet.getCell("D2").value = dateFromWeatherData;
+    // Update F2 with the date from weather_data_16.csv
+    sheet.getCell("F2").value = dateFromWeatherData;
 
     await workbook.xlsx.writeFile(pathEx); // Save changes to the Excel file
 
-    console.log(`Updated D2 with date: ${dateFromWeatherData}`);
+    console.log(`Updated F2 with date: ${dateFromWeatherData}`);
 
-    // Update the Excel file for 16:00 task
+    // Update the Excel file for 16:10 task
     await updateExcelFromCSV(
       "weather_data_16.csv", // CSV file to use
       pathEx, // Excel file to update
       "Pokytis dienos metu", // Sheet to update
       columnMapping16, // Mapping from CSV columns to Excel columns
-      "P", // Pinns in P4:P65 in the Excel sheet
-      "P", // Column P contains pinns to match
-      "13:00" // Only add rows where column D contains 13:00 utc in date-time
+      "S", // Pinns in S4:S65 in the Excel sheet
+      "S", // Column S contains pinns to match
+      "14:00" // Only add rows where column D contains 14:00 utc in date-time
     );
   }
 
-  // 18:00 Task
-  else if (currentHour >= 18 && currentHour < 24) {
+  // 18:10 Task
+  else if (currentHour >= 18 && currentHour < 20) {
     console.log(currentHour);
-    console.log("Starting task: 18:00 for sheet: Pokytis dienos metu");
+    console.log("Starting task: 18:10 for sheet: Pokytis dienos metu");
 
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile(pathEx); // Read Excel file
@@ -369,29 +369,29 @@ const runBasedOnTimeWindow = async () => {
 
     // Clear new data columns before adding
     for (let i = 4; i <= 65; i++) {
-      sheet.getCell(`F${i}`).value = null;
+      sheet.getCell(`G${i}`).value = null;
     }
 
     const columnMapping18 = {
-      4: "F", // CSV column E -> Excel column F
+      4: "G", // CSV column E -> Excel column G
     };
 
-    // Update F2 with the date from weather_data_18.csv
-    sheet.getCell("F2").value = dateFromWeatherData;
+    // Update G2 with the date from weather_data_18.csv
+    sheet.getCell("G2").value = dateFromWeatherData;
 
     await workbook.xlsx.writeFile(pathEx); // Save changes to the Excel file
 
-    console.log(`Updated F2 with date: ${dateFromWeatherData}`);
+    console.log(`Updated G2 with date: ${dateFromWeatherData}`);
 
-    // Update the Excel file for 18:00 task
+    // Update the Excel file for 18:10 task
     await updateExcelFromCSV(
       "weather_data_18.csv", // CSV file to use
       pathEx, // Excel file to update
       "Pokytis dienos metu", // Sheet to update
       columnMapping18, // Mapping from CSV columns to Excel columns
-      "P", // Pinns in P4:P65 in the Excel sheet
-      "P", // Column P contains pinns to match
-      "16:00" // Only add rows where column F contains 18:00 utc in date-time
+      "S", // Pinns in S4:S65 in the Excel sheet
+      "S", // Column S contains pinns to match
+      "16:00" // Only add rows where column D contains 16:00 utc in date-time
     );
   }
 };

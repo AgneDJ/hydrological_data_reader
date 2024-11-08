@@ -2,7 +2,7 @@ const puppeteer = require("puppeteer"); // Puppeteer library to control headless
 const fs = require("fs"); // File system module to handle file operations
 const path = require("path"); // Path module to handle file paths
 const ExcelJS = require("exceljs"); // ExcelJS library to handle Excel file operations
-const pathEx = String.raw`\\192.168.1.30\Dokumentai\PPS\2. Išoriniai\Hidrologinės prognozės\@ Prognozės\Test\Dienos situacija_test2.xlsx`;
+const pathEx = String.raw`\\192.168.1.30\Dokumentai\PPS\2. Išoriniai\Hidrologinės prognozės\@ Prognozės\Test\Dienos situacija_test 2.xlsx`;
 
 // Manual delay function using setTimeout
 const delay = (time) => new Promise((resolve) => setTimeout(resolve, time));
@@ -186,9 +186,9 @@ const runBasedOnTimeWindow = async () => {
   const currentMinute = now.getMinutes(); // Get current minute
   console.log(`Current time: ${currentHour}:${currentMinute}`);
 
-  // 07:00 Task
+  // 07:10 Task
   if (currentHour >= 6 && currentHour < 9) {
-    console.log("Starting task: 07:00 for sheet: Paros pokytis");
+    console.log("Starting task: 07:10 for sheet: Paros pokytis");
 
     // Fetch weather data for the 07:00 task
     await fetchData("weather_data.csv");
@@ -263,22 +263,15 @@ const runBasedOnTimeWindow = async () => {
     // Save the workbook after shifting and updating
     console.log("Shift and date update complete.");
 
-  
     console.log("Starting task: 7:10 for sheet: Pokytis dienos metu");
 
-    const workbook = new ExcelJS.Workbook();
+    // const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile(pathEx); // Read Excel file
-    const sheet = workbook.getWorksheet("Pokytis dienos metu"); // Access the 'Pokytis dienos metu' sheet
-
-    const weatherDataCSV = fs.readFileSync("weather_data.csv", "utf8");
-    const weatherDataRows = weatherDataCSV
-      .split("\n")
-      .map((row) => row.split(","));
-    const dateFromWeatherData = extractDateFromCell(weatherDataRows[1][3]);
+    const sheet2 = workbook.getWorksheet("Pokytis dienos metu"); // Access the 'Pokytis dienos metu' sheet
 
     // Clear new data columns before adding
     for (let i = 4; i <= 65; i++) {
-      sheet.getCell(`C${i}`).value = null;
+      sheet2.getCell(`C${i}`).value = null;
     }
 
     const columnMapping7 = {
@@ -302,8 +295,6 @@ const runBasedOnTimeWindow = async () => {
       "S", // Column P contains pinns to match
       "5:00" // Only add rows where column D contains 5:00 utc in date-time
     );
-  }
-      
   }
 
   // 13:10 Task
