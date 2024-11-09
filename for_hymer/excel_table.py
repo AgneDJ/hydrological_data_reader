@@ -65,8 +65,8 @@ filtered_df = df_structured[df_structured['Location'].isin(
 filtered_df['Location'] = pd.Categorical(
     filtered_df['Location'], categories=stations_to_keep, ordered=True)
 
-# # Sort the DataFrame by "Location" based on the defined order
-# filtered_df = filtered_df.sort_values('Location')
+# Sort the DataFrame by "Location" based on the defined order
+filtered_df = filtered_df.sort_values('Location')
 
 # # Define both output paths
 # output_file_path1 = r'\\192.168.1.30\Dokumentai\PPS\2. Išoriniai\Hidrologinės prognozės\@ Prognozės\Test\Hymer\Hymer duomenys.xlsx'

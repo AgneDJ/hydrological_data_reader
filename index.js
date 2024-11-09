@@ -265,7 +265,7 @@ const runBasedOnTimeWindow = async () => {
   }
 
   // 13:10 Task
-  else if (currentHour >= 1 && currentHour < 2) {
+  else if (currentHour >= 13 && currentHour < 16) {
     console.log("Starting task: 13:10 for sheet: Pokytis dienos metu");
 
     const workbook = new ExcelJS.Workbook();
