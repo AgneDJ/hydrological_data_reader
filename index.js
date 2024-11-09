@@ -265,7 +265,7 @@ const runBasedOnTimeWindow = async () => {
   }
 
   // 13:10 Task
-  else if (currentHour >= 13 && currentHour < 16) {
+  else if (currentHour >= 1 && currentHour < 2) {
     console.log("Starting task: 13:10 for sheet: Pokytis dienos metu");
 
     const workbook = new ExcelJS.Workbook();
@@ -303,7 +303,7 @@ const runBasedOnTimeWindow = async () => {
       columnMapping13, // Mapping from CSV columns to Excel columns
       "S", // Pinns in S4:S65 in the Excel sheet
       "S", // Column P contains pinns to match
-      "11:00" // Only add rows where column D contains 11:00 utc in date-time
+      "10:00" // Only add rows where column D contains 11:00 utc in date-time
     );
   }
 
@@ -347,7 +347,7 @@ const runBasedOnTimeWindow = async () => {
       columnMapping16, // Mapping from CSV columns to Excel columns
       "S", // Pinns in S4:S65 in the Excel sheet
       "S", // Column S contains pinns to match
-      "14:00" // Only add rows where column D contains 14:00 utc in date-time
+      "13:00" // Only add rows where column D contains 14:00 utc in date-time
     );
   }
 

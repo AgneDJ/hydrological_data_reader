@@ -79,7 +79,7 @@ filtered_df['Location'] = pd.Categorical(
 # print("Filtered and ordered data has been saved to both locations.")
 
 # Create a timestamp for the filename
-timestamp = datetime.now().strftime("%Y-%m-%d__%H:%M")
+timestamp = datetime.now().strftime("%Y-%m-%d_%H_%M")
 output_file_name = f"Hymer duomenys_{timestamp}.xlsx"
 
 # Define output path with dynamic filename
