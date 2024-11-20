@@ -7,12 +7,17 @@ def copy_with_fallback(source_file, destination_file):
     Copies a file from source to destination. If the file at the destination is open and cannot be overwritten,
     it saves the file with a different name.
     """
+    fallback_destination = destination_file.replace('.xlsx', '_.xlsx')
     try:
         shutil.copy2(source_file, destination_file)
         print(f"Copied {source_file} to {destination_file}")
+
+        # Delete the fallback file if it exists after a successful copy
+        if os.path.exists(fallback_destination):
+            os.remove(fallback_destination)
+            print(f"Deleted fallback file: {fallback_destination}")
     except PermissionError:
         # Fallback filename if the destination file cannot be overwritten
-        fallback_destination = destination_file.replace('.xlsx', '_.xlsx')
         shutil.copy2(source_file, fallback_destination)
         print(f"File is open. Saved as {fallback_destination}")
 
