@@ -3,7 +3,7 @@ import re
 from datetime import datetime
 
 # Load the data file
-file_path = r"C:\Users\agned\Desktop\Daily Hydro Situation\hydrological_data_reader\extracted_data.csv"
+file_path = r"c:\Users\agned\Documents\Darbo Dokumentai\HidroDuomenys\extracted_data.csv"
 with open(file_path, 'r', encoding='utf-8') as file:
     lines = file.readlines()
 
@@ -83,7 +83,10 @@ timestamp = datetime.now().strftime("%Y-%m-%d_%H_%M")
 output_file_name = f"Hymer duomenys_{timestamp}.xlsx"
 
 # Define output path with dynamic filename
-output_file_path1 = f'\\\\192.168.1.30\\Dokumentai\\PPS\\2. Išoriniai\\Hidrologinės prognozės\\@ Prognozės\\Test\\Hymer\\{
+# output_file_path1 = f'\\\\192.168.1.30\\Dokumentai\\PPS\\2. Išoriniai\\Hidrologinės prognozės\\@ Prognozės\\Test\\Hymer\\{
+#     output_file_name}'
+
+output_file_path1 = f'C:\\Users\\agned\\Documents\\Darbo Dokumentai\\HidroDuomenys\\Hymer\\{
     output_file_name}'
 
 # Save the filtered and ordered DataFrame to the new file with a timestamped name
