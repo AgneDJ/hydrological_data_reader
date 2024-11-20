@@ -2,7 +2,7 @@ const puppeteer = require("puppeteer"); // Puppeteer library to control headless
 const fs = require("fs"); // File system module to handle file operations
 const path = require("path"); // Path module to handle file paths
 const ExcelJS = require("exceljs"); // ExcelJS library to handle Excel file operations
-const pathEx = String.raw`\\192.168.1.30\Dokumentai\PPS\2. Išoriniai\Hidrologinės prognozės\@ Prognozės\Test\Dienos situacija_test 2.xlsx`;
+const pathEx = String.raw`C:\Users\agned\Documents\Darbo Dokumentai\HidroDuomenys\Dienos situacija_test 2.xlsx`;
 
 // Manual delay function using setTimeout
 const delay = (time) => new Promise((resolve) => setTimeout(resolve, time));
