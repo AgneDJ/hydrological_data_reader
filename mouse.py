@@ -6,23 +6,34 @@ from datetime import datetime, timedelta
 
 # Define paths for the scripts
 tasks = {
-    "07:10": ["C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\index.js",
-              "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\index.js",
-              "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\excel_table.py",
-              "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\copytoother.py"
-              ],
-    "13:10": ["C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\index.js",
-              "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\index.js",
-              "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\excel_table.py",
-              "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\copytoother.py"],
-    "16:10": ["C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\index.js",
-              "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\index.js",
-              "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\excel_table.py",
-              "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\copytoother.py"],
-    "18:20": ["C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\index.js",
-              "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\index.js",
-              "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\excel_table.py",
-              "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\copytoother.py"]
+    "07:10": [
+        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\index.js",
+        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\index.js",
+        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\excel_table.py",
+        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\copytoother.py"
+    ],
+    "10:00": [
+        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\temp.js",
+        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\copytoother.py"
+    ],
+    "13:10": [
+        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\index.js",
+        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\index.js",
+        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\excel_table.py",
+        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\copytoother.py"
+    ],
+    "16:10": [
+        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\index.js",
+        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\index.js",
+        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\excel_table.py",
+        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\copytoother.py"
+    ],
+    "18:20": [
+        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\index.js",
+        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\index.js",
+        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\excel_table.py",
+        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\copytoother.py"
+    ]
 }
 
 # Coordinates for Monitor 1

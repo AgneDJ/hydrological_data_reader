@@ -16,6 +16,7 @@
     "jsdom": "^25.0.1",
     "node-fetch": "^2.7.0",
     "node-schedule": "^2.1.1",
+    "odf": "^2.3.4",
     "puppeteer": "^23.7.1",
     "xlsx": "^0.18.5"
   }
