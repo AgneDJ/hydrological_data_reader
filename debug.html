@@ -1,1 +1,655 @@
-<html><head></head><body></body></html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="maketas/stiliai/pagrindinis.css">
+<script type="text/javascript" src="pletiniai/jquery/jquery.js"></script>
+
+  <link rel="stylesheet" href="/pletiniai/jquery/jquery-ui.css">
+  <script src="/pletiniai/jquery/jquery-1.12.4.js"></script>
+  <script src="/pletiniai/jquery/jquery-ui.js"></script>
+  <script>
+  $( function() {
+    $( "#datepicker" ).datepicker();
+  } );
+  </script> 
+</head>
+<body>
+	<div id="talpykla">
+		
+		<div id="pagr_blokas">
+		
+			<div id="turinys">
+		
+
+		
+				<form method="post" action="/himed/maksimum_data.php" style="float:left;">
+					<fieldset>
+						<legend>Biuletenis</legend>
+						<ul>
+							<li>
+								<p>Datos pasirinkimas: <input type="text" name="calendar" id="datepicker" value="2024-11-25"></p>
+                
+							</li>
+						 
+							<li>
+								<input name="rodyti" type="submit" value="Rodyti" style="width:80px;">
+							</li>
+						</ul>
+					</fieldset>
+				</form>
+				
+								<form method="post" action="maksimum_data_eksportas.php" style="float:right; margin-left:6px;">
+									<fieldset>
+										<legend>Duomenų eksportas</legend>
+										<ul>
+											<li>							
+												<input name="xls" type="submit" value="" title="Excel XLS" style="width:24px; height:24px; margin:0px; padding:0px; background:url(maketas/graf_elementai/excel_2003_ikona.png) no-repeat; border:none; cursor:pointer;">
+												<input name="xlsx" type="submit" value="" title="Excel XLSX" style="width:24px; height:24px; margin:0px; padding:0px; background:url(maketas/graf_elementai/excel_2007_ikona.png) no-repeat; border:none; cursor:pointer;">
+												<input name="pdf" type="submit" value="" title="Adobe PDF" style="width:24px; height:24px; margin:0px; padding:0px; background:url(maketas/graf_elementai/adobe_reader_8_ikona.png) no-repeat; border:none; cursor:pointer;">
+												<input name="failo_pav" type="hidden" value="biuletenis_lt_20241125_1101">
+												<input name="laikas" type="hidden" value="2024-11-25">
+												<input name="vidurkis" type="hidden" value="0.5_0.0_4.8">
+												<input name="failo_duom" type="hidden" value="YTo1Mjp7aTowO2E6ODp7aTowO3M6ODoiRWlsLiBOci4iO2k6MTtzOjY6IlN0b3RpcyI7aToyO3M6MjM6IiBNYWtzaW1hbGkgdGVtcGVyYXTFq3JhIjtpOjM7czoyODoiUGFyb3MgdGVtcGVyYXR1cm9zIHZpZHVya2lzICI7aTo0O3M6MjE6Ik1pbmltYWxpIHRlbXBlcmF0xatyYSI7aTo1O3M6MjQ6Ik1ha3NpbWFsdXMgdsSXam8gZ3JlaXRpcyI7aTo2O3M6MTc6IktyaXR1bGlhaSBbZGllbmFdIjtpOjc7czoxODoiS3JpdHVsaWFpIFtuYWt0aXNdIjt9aToxO2E6ODp7czo2OiJlaWxfbnIiO2k6MTtzOjQ6Im5hbWUiO3M6MTI6IkFrbWVuxJdzIEFNUyI7czo4OiJtYXhfdGVtcCI7czozOiIxLjciO3M6ODoidmlkdXJraXMiO2Q6LTAuNjtzOjk6Im1pbmltdW1hcyI7czozOiIwLjkiO3M6NToidmVqYXMiO047czo2OiJkX2tyaXQiO3M6MzoiMC4wIjtzOjY6Im5fa3JpdCI7czozOiIwLjMiO31pOjI7YTo4OntzOjY6ImVpbF9uciI7aToyO3M6NDoibmFtZSI7czoxMToiQWx5dGF1cyBBTVMiO3M6ODoibWF4X3RlbXAiO3M6MzoiMi4xIjtzOjg6InZpZHVya2lzIjtkOjAuODtzOjk6Im1pbmltdW1hcyI7czozOiIxLjUiO3M6NToidmVqYXMiO047czo2OiJkX2tyaXQiO3M6MzoiMC4wIjtzOjY6Im5fa3JpdCI7czozOiIwLjAiO31pOjM7YTo4OntzOjY6ImVpbF9uciI7aTozO3M6NDoibmFtZSI7czoxMzoiQmlyxaF0b25vIEFNUyI7czo4OiJtYXhfdGVtcCI7czozOiIyLjYiO3M6ODoidmlkdXJraXMiO2Q6MS40O3M6OToibWluaW11bWFzIjtzOjM6IjEuOSI7czo1OiJ2ZWphcyI7TjtzOjY6ImRfa3JpdCI7czozOiIwLjAiO3M6Njoibl9rcml0IjtzOjM6IjAuMCI7fWk6NDthOjg6e3M6NjoiZWlsX25yIjtpOjQ7czo0OiJuYW1lIjtzOjExOiJCaXLFvsWzIEFNUyI7czo4OiJtYXhfdGVtcCI7czozOiIyLjQiO3M6ODoidmlkdXJraXMiO2Q6MC4yO3M6OToibWluaW11bWFzIjtzOjM6IjAuMyI7czo1OiJ2ZWphcyI7czo0OiIxMS4yIjtzOjY6ImRfa3JpdCI7czozOiIwLjAiO3M6Njoibl9rcml0IjtzOjM6IjAuNCI7fWk6NTthOjg6e3M6NjoiZWlsX25yIjtpOjU7czo0OiJuYW1lIjtzOjEyOiJEb3RudXZvcyBBTVMiO3M6ODoibWF4X3RlbXAiO3M6MzoiMS42IjtzOjg6InZpZHVya2lzIjtkOjAuNDtzOjk6Im1pbmltdW1hcyI7czozOiIxLjMiO3M6NToidmVqYXMiO3M6MzoiOS40IjtzOjY6ImRfa3JpdCI7czozOiIwLjAiO3M6Njoibl9rcml0IjtzOjM6IjAuMCI7fWk6NjthOjg6e3M6NjoiZWlsX25yIjtpOjY7czo0OiJuYW1lIjtzOjE2OiJEcnVza2luaW5rxbMgQU1TIjtzOjg6Im1heF90ZW1wIjtzOjM6IjIuNSI7czo4OiJ2aWR1cmtpcyI7ZDoxLjI7czo5OiJtaW5pbXVtYXMiO3M6MzoiMS42IjtzOjU6InZlamFzIjtOO3M6NjoiZF9rcml0IjtzOjM6IjAuMCI7czo2OiJuX2tyaXQiO3M6MzoiMC4wIjt9aTo3O2E6ODp7czo2OiJlaWxfbnIiO2k6NztzOjQ6Im5hbWUiO3M6MTI6IkTFq2vFoXRvIEFNUyI7czo4OiJtYXhfdGVtcCI7czozOiIxLjQiO3M6ODoidmlkdXJraXMiO2Q6MC4xO3M6OToibWluaW11bWFzIjtzOjQ6Ii0xLjAiO3M6NToidmVqYXMiO3M6MzoiOS4wIjtzOjY6ImRfa3JpdCI7czozOiIwLjAiO3M6Njoibl9rcml0IjtzOjM6IjAuMCI7fWk6ODthOjg6e3M6NjoiZWlsX25yIjtpOjg7czo0OiJuYW1lIjtzOjE1OiJFbGVrdHLEl27FsyBBTVMiO3M6ODoibWF4X3RlbXAiO3M6MzoiMS41IjtzOjg6InZpZHVya2lzIjtkOjAuNztzOjk6Im1pbmltdW1hcyI7czozOiIxLjEiO3M6NToidmVqYXMiO047czo2OiJkX2tyaXQiO3M6MzoiMC4wIjtzOjY6Im5fa3JpdCI7czozOiIwLjEiO31pOjk7YTo4OntzOjY6ImVpbF9uciI7aTo5O3M6NDoibmFtZSI7czoxMToiSm9uYXZvcyBBTVMiO3M6ODoibWF4X3RlbXAiO3M6MzoiMi4zIjtzOjg6InZpZHVya2lzIjtkOjEuMjtzOjk6Im1pbmltdW1hcyI7czozOiIyLjAiO3M6NToidmVqYXMiO047czo2OiJkX2tyaXQiO3M6MzoiMC4wIjtzOjY6Im5fa3JpdCI7czozOiIwLjEiO31pOjEwO2E6ODp7czo2OiJlaWxfbnIiO2k6MTA7czo0OiJuYW1lIjtzOjEzOiJKb25pxaFraW8gQU1TIjtzOjg6Im1heF90ZW1wIjtzOjM6IjAuOSI7czo4OiJ2aWR1cmtpcyI7ZDotMC4zO3M6OToibWluaW11bWFzIjtzOjM6IjAuMyI7czo1OiJ2ZWphcyI7TjtzOjY6ImRfa3JpdCI7czozOiIwLjAiO3M6Njoibl9rcml0IjtzOjM6IjAuNSI7fWk6MTE7YTo4OntzOjY6ImVpbF9uciI7aToxMTtzOjQ6Im5hbWUiO3M6MTI6Ikp1cmJhcmtvIEFNUyI7czo4OiJtYXhfdGVtcCI7czozOiIxLjkiO3M6ODoidmlkdXJraXMiO2Q6MC42O3M6OToibWluaW11bWFzIjtzOjM6IjEuNCI7czo1OiJ2ZWphcyI7TjtzOjY6ImRfa3JpdCI7czozOiIwLjAiO3M6Njoibl9rcml0IjtzOjM6IjAuMCI7fWk6MTI7YTo4OntzOjY6ImVpbF9uciI7aToxMjtzOjQ6Im5hbWUiO3M6MTc6IkthacWhaWFkb3JpxbMgQU1TIjtzOjg6Im1heF90ZW1wIjtzOjM6IjEuOSI7czo4OiJ2aWR1cmtpcyI7ZDowLjg7czo5OiJtaW5pbXVtYXMiO3M6MzoiMS41IjtzOjU6InZlamFzIjtOO3M6NjoiZF9rcml0IjtzOjM6IjAuMCI7czo2OiJuX2tyaXQiO3M6MzoiMC4xIjt9aToxMzthOjg6e3M6NjoiZWlsX25yIjtpOjEzO3M6NDoibmFtZSI7czoxNDoiS2FsdmFyaWpvcyBBTVMiO3M6ODoibWF4X3RlbXAiO3M6MzoiMi4xIjtzOjg6InZpZHVya2lzIjtkOjAuNjtzOjk6Im1pbmltdW1hcyI7czozOiIxLjIiO3M6NToidmVqYXMiO047czo2OiJkX2tyaXQiO3M6MzoiMC4wIjtzOjY6Im5fa3JpdCI7czozOiIwLjAiO31pOjE0O2E6ODp7czo2OiJlaWxfbnIiO2k6MTQ7czo0OiJuYW1lIjtzOjk6IkthdW5vIEFNUyI7czo4OiJtYXhfdGVtcCI7czozOiIyLjEiO3M6ODoidmlkdXJraXMiO2Q6MC42O3M6OToibWluaW11bWFzIjtzOjM6IjEuMSI7czo1OiJ2ZWphcyI7czo0OiIxMS45IjtzOjY6ImRfa3JpdCI7czozOiIwLjAiO3M6Njoibl9rcml0IjtzOjM6IjAuMCI7fWk6MTU7YTo4OntzOjY6ImVpbF9uciI7aToxNTtzOjQ6Im5hbWUiO3M6MTc6IkthemzFsyBSxatkb3MgQU1TIjtzOjg6Im1heF90ZW1wIjtzOjM6IjIuOCI7czo4OiJ2aWR1cmtpcyI7ZDowLjY7czo5OiJtaW5pbXVtYXMiO3M6MzoiMS42IjtzOjU6InZlamFzIjtOO3M6NjoiZF9rcml0IjtzOjM6IjAuMCI7czo2OiJuX2tyaXQiO3M6MzoiMC4wIjt9aToxNjthOjg6e3M6NjoiZWlsX25yIjtpOjE2O3M6NDoibmFtZSI7czoxMToiS2VsbcSXcyBBTVMiO3M6ODoibWF4X3RlbXAiO3M6MzoiMS40IjtzOjg6InZpZHVya2lzIjtkOi0wLjI7czo5OiJtaW5pbXVtYXMiO3M6MzoiMC42IjtzOjU6InZlamFzIjtOO3M6NjoiZF9rcml0IjtzOjM6IjAuMCI7czo2OiJuX2tyaXQiO3M6MzoiMC4wIjt9aToxNzthOjg6e3M6NjoiZWlsX25yIjtpOjE3O3M6NDoibmFtZSI7czoxMjoiS3liYXJ0xbMgQU1TIjtzOjg6Im1heF90ZW1wIjtzOjM6IjMuMCI7czo4OiJ2aWR1cmtpcyI7ZDoxLjE7czo5OiJtaW5pbXVtYXMiO3M6MzoiMi4xIjtzOjU6InZlamFzIjtzOjQ6IjEyLjciO3M6NjoiZF9rcml0IjtzOjM6IjAuMCI7czo2OiJuX2tyaXQiO3M6MzoiMC4wIjt9aToxODthOjg6e3M6NjoiZWlsX25yIjtpOjE4O3M6NDoibmFtZSI7czoxNDoiS2xhaXDEl2RvcyBBTVMiO3M6ODoibWF4X3RlbXAiO3M6MzoiMi40IjtzOjg6InZpZHVya2lzIjtkOjMuMztzOjk6Im1pbmltdW1hcyI7czozOiIxLjgiO3M6NToidmVqYXMiO3M6NDoiMTIuNCI7czo2OiJkX2tyaXQiO3M6MzoiMC4wIjtzOjY6Im5fa3JpdCI7czozOiIwLjEiO31pOjE5O2E6ODp7czo2OiJlaWxfbnIiO2k6MTk7czo0OiJuYW1lIjtzOjEzOiJLcmV0aW5nb3MgQU1TIjtzOjg6Im1heF90ZW1wIjtzOjM6IjEuNiI7czo4OiJ2aWR1cmtpcyI7ZDoxLjc7czo5OiJtaW5pbXVtYXMiO3M6MzoiMS40IjtzOjU6InZlamFzIjtOO3M6NjoiZF9rcml0IjtzOjM6IjAuMCI7czo2OiJuX2tyaXQiO3M6MzoiMC4wIjt9aToyMDthOjg6e3M6NjoiZWlsX25yIjtpOjIwO3M6NDoibmFtZSI7czoxMzoiS3VwacWha2lvIEFNUyI7czo4OiJtYXhfdGVtcCI7czozOiIyLjQiO3M6ODoidmlkdXJraXMiO2Q6MC4yO3M6OToibWluaW11bWFzIjtzOjM6IjAuMyI7czo1OiJ2ZWphcyI7TjtzOjY6ImRfa3JpdCI7czozOiIwLjAiO3M6Njoibl9rcml0IjtzOjM6IjAuMSI7fWk6MjE7YTo4OntzOjY6ImVpbF9uciI7aToyMTtzOjQ6Im5hbWUiO3M6MTI6IkxhdWt1dm9zIEFNUyI7czo4OiJtYXhfdGVtcCI7czozOiIwLjciO3M6ODoidmlkdXJraXMiO2Q6LTAuNDtzOjk6Im1pbmltdW1hcyI7czozOiIwLjQiO3M6NToidmVqYXMiO3M6NDoiMTIuNyI7czo2OiJkX2tyaXQiO3M6MzoiMC4wIjtzOjY6Im5fa3JpdCI7czozOiIwLjAiO31pOjIyO2E6ODp7czo2OiJlaWxfbnIiO2k6MjI7czo0OiJuYW1lIjtzOjEyOiJMYXpkaWrFsyBBTVMiO3M6ODoibWF4X3RlbXAiO3M6MzoiMS45IjtzOjg6InZpZHVya2lzIjtkOjAuOTtzOjk6Im1pbmltdW1hcyI7czozOiIxLjUiO3M6NToidmVqYXMiO3M6NDoiMTIuMCI7czo2OiJkX2tyaXQiO3M6MzoiMC4wIjtzOjY6Im5fa3JpdCI7czozOiIwLjAiO31pOjIzO2E6ODp7czo2OiJlaWxfbnIiO2k6MjM7czo0OiJuYW1lIjtzOjE3OiJNYXJpamFtcG9sxJdzIEFNUyI7czo4OiJtYXhfdGVtcCI7czozOiIyLjMiO3M6ODoidmlkdXJraXMiO2Q6MC44O3M6OToibWluaW11bWFzIjtzOjM6IjEuOCI7czo1OiJ2ZWphcyI7czo0OiIxMS43IjtzOjY6ImRfa3JpdCI7czozOiIwLjAiO3M6Njoibl9rcml0IjtzOjM6IjAuMCI7fWk6MjQ7YTo4OntzOjY6ImVpbF9uciI7aToyNDtzOjQ6Im5hbWUiO3M6MTQ6Ik1hxb5laWtpxbMgQU1TIjtzOjg6Im1heF90ZW1wIjtzOjM6IjEuNyI7czo4OiJ2aWR1cmtpcyI7ZDotMC4zO3M6OToibWluaW11bWFzIjtzOjM6IjEuMiI7czo1OiJ2ZWphcyI7czo0OiIxMC41IjtzOjY6ImRfa3JpdCI7czozOiIwLjAiO3M6Njoibl9rcml0IjtzOjM6IjAuNCI7fWk6MjU7YTo4OntzOjY6ImVpbF9uciI7aToyNTtzOjQ6Im5hbWUiO3M6MTI6Ik1vbMSXdMWzIEFNUyI7czo4OiJtYXhfdGVtcCI7czozOiIyLjIiO3M6ODoidmlkdXJraXMiO2Q6MC41O3M6OToibWluaW11bWFzIjtzOjQ6Ii0wLjEiO3M6NToidmVqYXMiO047czo2OiJkX2tyaXQiO3M6MzoiMC4wIjtzOjY6Im5fa3JpdCI7czozOiIwLjEiO31pOjI2O2E6ODp7czo2OiJlaWxfbnIiO2k6MjY7czo0OiJuYW1lIjtzOjk6Ik5pZG9zIEFNUyI7czo4OiJtYXhfdGVtcCI7czozOiIzLjAiO3M6ODoidmlkdXJraXMiO2Q6My4xO3M6OToibWluaW11bWFzIjtzOjM6IjIuNSI7czo1OiJ2ZWphcyI7czo0OiIxNC42IjtzOjY6ImRfa3JpdCI7czozOiIwLjAiO3M6Njoibl9rcml0IjtzOjM6IjAuMiI7fWk6Mjc7YTo4OntzOjY6ImVpbF9uciI7aToyNztzOjQ6Im5hbWUiO3M6MTM6IlBhZ8SXZ2nFsyBBTVMiO3M6ODoibWF4X3RlbXAiO3M6MzoiMS42IjtzOjg6InZpZHVya2lzIjtkOi0wO3M6OToibWluaW11bWFzIjtzOjM6IjEuMiI7czo1OiJ2ZWphcyI7TjtzOjY6ImRfa3JpdCI7czozOiIwLjAiO3M6Njoibl9rcml0IjtzOjM6IjAuMCI7fWk6Mjg7YTo4OntzOjY6ImVpbF9uciI7aToyODtzOjQ6Im5hbWUiO3M6MTI6IlBha3J1b2pvIEFNUyI7czo4OiJtYXhfdGVtcCI7czozOiIxLjEiO3M6ODoidmlkdXJraXMiO2Q6LTAuNTtzOjk6Im1pbmltdW1hcyI7czozOiIwLjEiO3M6NToidmVqYXMiO047czo2OiJkX2tyaXQiO3M6MzoiMC4wIjtzOjY6Im5fa3JpdCI7czozOiIwLjQiO31pOjI5O2E6ODp7czo2OiJlaWxfbnIiO2k6Mjk7czo0OiJuYW1lIjtzOjE1OiJQYW5ldsSXxb5pbyBBTVMiO3M6ODoibWF4X3RlbXAiO3M6MzoiMi40IjtzOjg6InZpZHVya2lzIjtkOjAuNDtzOjk6Im1pbmltdW1hcyI7czozOiIwLjgiO3M6NToidmVqYXMiO3M6MzoiOS43IjtzOjY6ImRfa3JpdCI7czozOiIwLjAiO3M6Njoibl9rcml0IjtzOjM6IjAuMyI7fWk6MzA7YTo4OntzOjY6ImVpbF9uciI7aTozMDtzOjQ6Im5hbWUiO3M6MTI6IlBsdW5nxJdzIEFNUyI7czo4OiJtYXhfdGVtcCI7czozOiIwLjYiO3M6ODoidmlkdXJraXMiO2Q6LTAuODtzOjk6Im1pbmltdW1hcyI7czozOiIwLjQiO3M6NToidmVqYXMiO047czo2OiJkX2tyaXQiO3M6MzoiMC4wIjtzOjY6Im5fa3JpdCI7czozOiIwLjIiO31pOjMxO2E6ODp7czo2OiJlaWxfbnIiO2k6MzE7czo0OiJuYW1lIjtzOjExOiJQcmllbsWzIEFNUyI7czo4OiJtYXhfdGVtcCI7czozOiIxLjgiO3M6ODoidmlkdXJraXMiO2Q6MC43O3M6OToibWluaW11bWFzIjtzOjM6IjEuMiI7czo1OiJ2ZWphcyI7TjtzOjY6ImRfa3JpdCI7czozOiIwLjAiO3M6Njoibl9rcml0IjtzOjM6IjAuMCI7fWk6MzI7YTo4OntzOjY6ImVpbF9uciI7aTozMjtzOjQ6Im5hbWUiO3M6MTM6IlJhc2VpbmnFsyBBTVMiO3M6ODoibWF4X3RlbXAiO3M6MzoiMi4wIjtzOjg6InZpZHVya2lzIjtkOjAuMjtzOjk6Im1pbmltdW1hcyI7czozOiIxLjEiO3M6NToidmVqYXMiO3M6NDoiMTAuOCI7czo2OiJkX2tyaXQiO3M6MzoiMC4wIjtzOjY6Im5fa3JpdCI7czozOiIwLjAiO31pOjMzO2E6ODp7czo2OiJlaWxfbnIiO2k6MzM7czo0OiJuYW1lIjtzOjExOiJSaWV0YXZvIEFNUyI7czo4OiJtYXhfdGVtcCI7czozOiIwLjUiO3M6ODoidmlkdXJraXMiO2Q6LTIuMTtzOjk6Im1pbmltdW1hcyI7czozOiIwLjQiO3M6NToidmVqYXMiO047czo2OiJkX2tyaXQiO3M6MzoiMC4wIjtzOjY6Im5fa3JpdCI7czozOiIwLjMiO31pOjM0O2E6ODp7czo2OiJlaWxfbnIiO2k6MzQ7czo0OiJuYW1lIjtzOjEzOiJSb2tpxaFraW8gQU1TIjtzOjg6Im1heF90ZW1wIjtzOjM6IjIuNiI7czo4OiJ2aWR1cmtpcyI7ZDowLjE7czo5OiJtaW5pbXVtYXMiO3M6NDoiLTAuNSI7czo1OiJ2ZWphcyI7czozOiI5LjMiO3M6NjoiZF9rcml0IjtzOjM6IjAuMCI7czo2OiJuX2tyaXQiO3M6MzoiMC4xIjt9aTozNTthOjg6e3M6NjoiZWlsX25yIjtpOjM1O3M6NDoibmFtZSI7czoxMDoiU2t1b2RvIEFNUyI7czo4OiJtYXhfdGVtcCI7czozOiIxLjYiO3M6ODoidmlkdXJraXMiO2Q6LTAuNTtzOjk6Im1pbmltdW1hcyI7czozOiIxLjMiO3M6NToidmVqYXMiO047czo2OiJkX2tyaXQiO3M6MzoiMC4wIjtzOjY6Im5fa3JpdCI7czozOiIwLjQiO31pOjM2O2E6ODp7czo2OiJlaWxfbnIiO2k6MzY7czo0OiJuYW1lIjtzOjExOiLFoGFracWzIEFNUyI7czo4OiJtYXhfdGVtcCI7czozOiIyLjEiO3M6ODoidmlkdXJraXMiO2Q6MC4yO3M6OToibWluaW11bWFzIjtzOjM6IjEuNCI7czo1OiJ2ZWphcyI7TjtzOjY6ImRfa3JpdCI7czozOiIwLjAiO3M6Njoibl9rcml0IjtzOjM6IjAuMSI7fWk6Mzc7YTo4OntzOjY6ImVpbF9uciI7aTozNztzOjQ6Im5hbWUiO3M6MTc6IsWgYWzEjWluaW5rxbMgQU1TIjtzOjg6Im1heF90ZW1wIjtzOjM6IjAuMyI7czo4OiJ2aWR1cmtpcyI7ZDotMC4yO3M6OToibWluaW11bWFzIjtzOjQ6Ii0wLjMiO3M6NToidmVqYXMiO047czo2OiJkX2tyaXQiO3M6MzoiMC4wIjtzOjY6Im5fa3JpdCI7czozOiIwLjAiO31pOjM4O2E6ODp7czo2OiJlaWxfbnIiO2k6Mzg7czo0OiJuYW1lIjtzOjEyOiLFoGVkdXZvcyBBTVMiO3M6ODoibWF4X3RlbXAiO3M6MzoiMS4yIjtzOjg6InZpZHVya2lzIjtkOi0wLjE7czo5OiJtaW5pbXVtYXMiO3M6MzoiMC41IjtzOjU6InZlamFzIjtOO3M6NjoiZF9rcml0IjtzOjM6IjAuMCI7czo2OiJuX2tyaXQiO3M6MzoiMC4xIjt9aTozOTthOjg6e3M6NjoiZWlsX25yIjtpOjM5O3M6NDoibmFtZSI7czoxMzoixaBpYXVsacWzIEFNUyI7czo4OiJtYXhfdGVtcCI7czozOiIxLjYiO3M6ODoidmlkdXJraXMiO2Q6LTAuMTtzOjk6Im1pbmltdW1hcyI7czozOiIwLjkiO3M6NToidmVqYXMiO3M6MzoiOS44IjtzOjY6ImRfa3JpdCI7czozOiIwLjAiO3M6Njoibl9rcml0IjtzOjM6IjAuMCI7fWk6NDA7YTo4OntzOjY6ImVpbF9uciI7aTo0MDtzOjQ6Im5hbWUiO3M6MTM6IsWgaWx1dMSXcyBBTVMiO3M6ODoibWF4X3RlbXAiO3M6MzoiMi4wIjtzOjg6InZpZHVya2lzIjtkOjEuNTtzOjk6Im1pbmltdW1hcyI7czozOiIxLjYiO3M6NToidmVqYXMiO3M6NDoiMTIuNSI7czo2OiJkX2tyaXQiO3M6MzoiMC4wIjtzOjY6Im5fa3JpdCI7czozOiIwLjAiO31pOjQxO2E6ODp7czo2OiJlaWxfbnIiO2k6NDE7czo0OiJuYW1lIjtzOjE3OiLFoHZlbsSNaW9uacWzIEFNUyI7czo4OiJtYXhfdGVtcCI7czozOiIwLjQiO3M6ODoidmlkdXJraXMiO2Q6LTAuNDtzOjk6Im1pbmltdW1hcyI7czo0OiItMS40IjtzOjU6InZlamFzIjtzOjM6IjkuOCI7czo2OiJkX2tyaXQiO3M6MzoiMC4wIjtzOjY6Im5fa3JpdCI7czozOiIwLjAiO31pOjQyO2E6ODp7czo2OiJlaWxfbnIiO2k6NDI7czo0OiJuYW1lIjtzOjEzOiJUYXVyYWfEl3MgQU1TIjtzOjg6Im1heF90ZW1wIjtzOjM6IjEuNyI7czo4OiJ2aWR1cmtpcyI7ZDowLjU7czo5OiJtaW5pbXVtYXMiO3M6MzoiMS4zIjtzOjU6InZlamFzIjtzOjM6IjguOCI7czo2OiJkX2tyaXQiO3M6MzoiMC4wIjtzOjY6Im5fa3JpdCI7czozOiIwLjEiO31pOjQzO2E6ODp7czo2OiJlaWxfbnIiO2k6NDM7czo0OiJuYW1lIjtzOjEyOiJUZWzFoWnFsyBBTVMiO3M6ODoibWF4X3RlbXAiO3M6MzoiMC45IjtzOjg6InZpZHVya2lzIjtkOi0wLjY7czo5OiJtaW5pbXVtYXMiO3M6MzoiMC43IjtzOjU6InZlamFzIjtzOjQ6IjExLjAiO3M6NjoiZF9rcml0IjtzOjM6IjAuMCI7czo2OiJuX2tyaXQiO3M6MzoiMC4wIjt9aTo0NDthOjg6e3M6NjoiZWlsX25yIjtpOjQ0O3M6NDoibmFtZSI7czoxMDoiVHJha8WzIEFNUyI7czo4OiJtYXhfdGVtcCI7czozOiIxLjIiO3M6ODoidmlkdXJraXMiO2Q6MC40O3M6OToibWluaW11bWFzIjtzOjM6IjAuNyI7czo1OiJ2ZWphcyI7TjtzOjY6ImRfa3JpdCI7czozOiIwLjAiO3M6Njoibl9rcml0IjtzOjM6IjAuMCI7fWk6NDU7YTo4OntzOjY6ImVpbF9uciI7aTo0NTtzOjQ6Im5hbWUiO3M6MTM6IlVrbWVyZ8SXcyBBTVMiO3M6ODoibWF4X3RlbXAiO3M6MzoiMS45IjtzOjg6InZpZHVya2lzIjtkOjAuOTtzOjk6Im1pbmltdW1hcyI7czozOiIxLjEiO3M6NToidmVqYXMiO3M6NDoiMTAuMyI7czo2OiJkX2tyaXQiO3M6MzoiMC4wIjtzOjY6Im5fa3JpdCI7czozOiIwLjEiO31pOjQ2O2E6ODp7czo2OiJlaWxfbnIiO2k6NDY7czo0OiJuYW1lIjtzOjEwOiJVdGVub3MgQU1TIjtzOjg6Im1heF90ZW1wIjtzOjM6IjMuMSI7czo4OiJ2aWR1cmtpcyI7ZDowLjg7czo5OiJtaW5pbXVtYXMiO3M6NDoiLTAuMSI7czo1OiJ2ZWphcyI7czozOiI5LjYiO3M6NjoiZF9rcml0IjtzOjM6IjAuMCI7czo2OiJuX2tyaXQiO3M6MzoiMC4xIjt9aTo0NzthOjg6e3M6NjoiZWlsX25yIjtpOjQ3O3M6NDoibmFtZSI7czoxMjoiVmFyxJdub3MgQU1TIjtzOjg6Im1heF90ZW1wIjtzOjM6IjEuNyI7czo4OiJ2aWR1cmtpcyI7ZDowLjg7czo5OiJtaW5pbXVtYXMiO3M6MzoiMS41IjtzOjU6InZlamFzIjtzOjM6IjkuMiI7czo2OiJkX2tyaXQiO3M6MzoiMC4wIjtzOjY6Im5fa3JpdCI7czozOiIwLjAiO31pOjQ4O2E6ODp7czo2OiJlaWxfbnIiO2k6NDg7czo0OiJuYW1lIjtzOjExOiJWZW50xJdzIEFNUyI7czo4OiJtYXhfdGVtcCI7czozOiIyLjMiO3M6ODoidmlkdXJraXMiO2Q6Mi42O3M6OToibWluaW11bWFzIjtzOjM6IjIuMSI7czo1OiJ2ZWphcyI7czo0OiIxMy43IjtzOjY6ImRfa3JpdCI7czozOiIwLjAiO3M6Njoibl9rcml0IjtzOjM6IjAuMSI7fWk6NDk7YTo4OntzOjY6ImVpbF9uciI7aTo0OTtzOjQ6Im5hbWUiO3M6MTY6IlbEl8W+YWnEjWnFsyBBTVMiO3M6ODoibWF4X3RlbXAiO3M6MzoiMS40IjtzOjg6InZpZHVya2lzIjtkOjAuNjtzOjk6Im1pbmltdW1hcyI7czozOiIxLjEiO3M6NToidmVqYXMiO3M6NDoiMTEuOCI7czo2OiJkX2tyaXQiO3M6MzoiMC4wIjtzOjY6Im5fa3JpdCI7czozOiIwLjAiO31pOjUwO2E6ODp7czo2OiJlaWxfbnIiO2k6NTA7czo0OiJuYW1lIjtzOjEyOiJWaWxuaWF1cyBBTVMiO3M6ODoibWF4X3RlbXAiO3M6MzoiMC41IjtzOjg6InZpZHVya2lzIjtkOjAuMztzOjk6Im1pbmltdW1hcyI7czozOiIwLjIiO3M6NToidmVqYXMiO3M6MzoiOS40IjtzOjY6ImRfa3JpdCI7czozOiIwLjAiO3M6Njoibl9rcml0IjtzOjM6IjAuMCI7fWk6NTE7YTo4OntzOjY6ImVpbF9uciI7aTo1MTtzOjQ6Im5hbWUiO3M6MTE6IlphcmFzxbMgQU1TIjtzOjg6Im1heF90ZW1wIjtzOjM6IjIuMSI7czo4OiJ2aWR1cmtpcyI7ZDowLjE7czo5OiJtaW5pbXVtYXMiO3M6NDoiLTEuMCI7czo1OiJ2ZWphcyI7TjtzOjY6ImRfa3JpdCI7czozOiIwLjAiO3M6Njoibl9rcml0IjtzOjM6IjAuMSI7fX0=">
+											</li>
+										</ul>
+									</fieldset>
+								</form>
+								 <p style="float:right; margin-top:52px; margin-left:260px;"></p>
+							<fieldset class="kodas" style="clear:both;">
+								<legend>SQL</legend>
+								
+      select sum(rr_per) as n_l_krituliai from prec_f,sreg 
+where obstime &gt;= '2024-11-24 19:00:00' AND obstime &lt;= '2024-11-25 06:00:00'
+and prec_f.pinn in (6451,5352,5651,4351,5154,4251,5252,4352,5153,5451,5353,5351,5152,5251,5452,5551,4451,4552,4452,4353,6251,6252,5354,5552,5652,5253,5155,
+4484, 4383, 4486, 5481, 6381, 5285, 4485, 4386, 4385, 5284, 5184, 5483, 5583, 5186, 6382, 5183, 4487, 5185, 4384, 4582, 6181, 4483, 5683, 5112, 5157, 4562)
+and prec_f.pinn=sreg.pinn
+and prec_f.period=60
+							</fieldset>
+							
+					<table class="duom_lent">
+						<tbody><tr>
+							<th>Eil. Nr.</th>
+							<th>Stotis<br>[name]</th>
+							<th>Aukščiausia<br>oro temperatūra<br>vakar dieną</th>
+							<th>Vidutinė<br>oro temperatūra<br>praėjusią parą</th>
+							<th>Žemiausia<br>oro temperatūra<br>šią naktį</th>
+							<th>Didžiausias<br>vėjo greitis<br>praėjusią parą</th>
+              <th>Krituliu kiekis<br>vakar dieną</th> 
+              <th>Kritulių kiekis<br>šią naktį</th>                               
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">1</td>
+							<td style="text-align:left;font-size:16px;">Akmenės AMS</td>
+							<td style="text-align:right;font-size:16px;">1.7</td>
+							<td style="text-align:right;font-size:16px;">-0.6</td>
+							<td style="text-align:right;font-size:16px;">0.9</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.3</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">2</td>
+							<td style="text-align:left;font-size:16px;">Alytaus AMS</td>
+							<td style="text-align:right;font-size:16px;">2.1</td>
+							<td style="text-align:right;font-size:16px;">0.8</td>
+							<td style="text-align:right;font-size:16px;">1.5</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">3</td>
+							<td style="text-align:left;font-size:16px;">Birštono AMS</td>
+							<td style="text-align:right;font-size:16px;">2.6</td>
+							<td style="text-align:right;font-size:16px;">1.4</td>
+							<td style="text-align:right;font-size:16px;">1.9</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">4</td>
+							<td style="text-align:left;font-size:16px;">Biržų AMS</td>
+							<td style="text-align:right;font-size:16px;">2.4</td>
+							<td style="text-align:right;font-size:16px;">0.2</td>
+							<td style="text-align:right;font-size:16px;">0.3</td>
+							<td style="text-align:right;font-size:16px;">11.2</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.4</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">5</td>
+							<td style="text-align:left;font-size:16px;">Dotnuvos AMS</td>
+							<td style="text-align:right;font-size:16px;">1.6</td>
+							<td style="text-align:right;font-size:16px;">0.4</td>
+							<td style="text-align:right;font-size:16px;">1.3</td>
+							<td style="text-align:right;font-size:16px;">9.4</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">6</td>
+							<td style="text-align:left;font-size:16px;">Druskininkų AMS</td>
+							<td style="text-align:right;font-size:16px;">2.5</td>
+							<td style="text-align:right;font-size:16px;">1.2</td>
+							<td style="text-align:right;font-size:16px;">1.6</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">7</td>
+							<td style="text-align:left;font-size:16px;">Dūkšto AMS</td>
+							<td style="text-align:right;font-size:16px;">1.4</td>
+							<td style="text-align:right;font-size:16px;">0.1</td>
+							<td style="text-align:right;font-size:16px;">-1.0</td>
+							<td style="text-align:right;font-size:16px;">9.0</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">8</td>
+							<td style="text-align:left;font-size:16px;">Elektrėnų AMS</td>
+							<td style="text-align:right;font-size:16px;">1.5</td>
+							<td style="text-align:right;font-size:16px;">0.7</td>
+							<td style="text-align:right;font-size:16px;">1.1</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.1</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">9</td>
+							<td style="text-align:left;font-size:16px;">Jonavos AMS</td>
+							<td style="text-align:right;font-size:16px;">2.3</td>
+							<td style="text-align:right;font-size:16px;">1.2</td>
+							<td style="text-align:right;font-size:16px;">2.0</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.1</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">10</td>
+							<td style="text-align:left;font-size:16px;">Joniškio AMS</td>
+							<td style="text-align:right;font-size:16px;">0.9</td>
+							<td style="text-align:right;font-size:16px;">-0.3</td>
+							<td style="text-align:right;font-size:16px;">0.3</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.5</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">11</td>
+							<td style="text-align:left;font-size:16px;">Jurbarko AMS</td>
+							<td style="text-align:right;font-size:16px;">1.9</td>
+							<td style="text-align:right;font-size:16px;">0.6</td>
+							<td style="text-align:right;font-size:16px;">1.4</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">12</td>
+							<td style="text-align:left;font-size:16px;">Kaišiadorių AMS</td>
+							<td style="text-align:right;font-size:16px;">1.9</td>
+							<td style="text-align:right;font-size:16px;">0.8</td>
+							<td style="text-align:right;font-size:16px;">1.5</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.1</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">13</td>
+							<td style="text-align:left;font-size:16px;">Kalvarijos AMS</td>
+							<td style="text-align:right;font-size:16px;">2.1</td>
+							<td style="text-align:right;font-size:16px;">0.6</td>
+							<td style="text-align:right;font-size:16px;">1.2</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">14</td>
+							<td style="text-align:left;font-size:16px;">Kauno AMS</td>
+							<td style="text-align:right;font-size:16px;">2.1</td>
+							<td style="text-align:right;font-size:16px;">0.6</td>
+							<td style="text-align:right;font-size:16px;">1.1</td>
+							<td style="text-align:right;font-size:16px;">11.9</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">15</td>
+							<td style="text-align:left;font-size:16px;">Kazlų Rūdos AMS</td>
+							<td style="text-align:right;font-size:16px;">2.8</td>
+							<td style="text-align:right;font-size:16px;">0.6</td>
+							<td style="text-align:right;font-size:16px;">1.6</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">16</td>
+							<td style="text-align:left;font-size:16px;">Kelmės AMS</td>
+							<td style="text-align:right;font-size:16px;">1.4</td>
+							<td style="text-align:right;font-size:16px;">-0.2</td>
+							<td style="text-align:right;font-size:16px;">0.6</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">17</td>
+							<td style="text-align:left;font-size:16px;">Kybartų AMS</td>
+							<td style="text-align:right;font-size:16px;">3.0</td>
+							<td style="text-align:right;font-size:16px;">1.1</td>
+							<td style="text-align:right;font-size:16px;">2.1</td>
+							<td style="text-align:right;font-size:16px;">12.7</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">18</td>
+							<td style="text-align:left;font-size:16px;">Klaipėdos AMS</td>
+							<td style="text-align:right;font-size:16px;">2.4</td>
+							<td style="text-align:right;font-size:16px;color:red;font-weight:bold;">3.3</td>
+							<td style="text-align:right;font-size:16px;">1.8</td>
+							<td style="text-align:right;font-size:16px;">12.4</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.1</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">19</td>
+							<td style="text-align:left;font-size:16px;">Kretingos AMS</td>
+							<td style="text-align:right;font-size:16px;">1.6</td>
+							<td style="text-align:right;font-size:16px;">1.7</td>
+							<td style="text-align:right;font-size:16px;">1.4</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">20</td>
+							<td style="text-align:left;font-size:16px;">Kupiškio AMS</td>
+							<td style="text-align:right;font-size:16px;">2.4</td>
+							<td style="text-align:right;font-size:16px;">0.2</td>
+							<td style="text-align:right;font-size:16px;">0.3</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.1</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">21</td>
+							<td style="text-align:left;font-size:16px;">Laukuvos AMS</td>
+							<td style="text-align:right;font-size:16px;">0.7</td>
+							<td style="text-align:right;font-size:16px;">-0.4</td>
+							<td style="text-align:right;font-size:16px;">0.4</td>
+							<td style="text-align:right;font-size:16px;">12.7</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">22</td>
+							<td style="text-align:left;font-size:16px;">Lazdijų AMS</td>
+							<td style="text-align:right;font-size:16px;">1.9</td>
+							<td style="text-align:right;font-size:16px;">0.9</td>
+							<td style="text-align:right;font-size:16px;">1.5</td>
+							<td style="text-align:right;font-size:16px;">12.0</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">23</td>
+							<td style="text-align:left;font-size:16px;">Marijampolės AMS</td>
+							<td style="text-align:right;font-size:16px;">2.3</td>
+							<td style="text-align:right;font-size:16px;">0.8</td>
+							<td style="text-align:right;font-size:16px;">1.8</td>
+							<td style="text-align:right;font-size:16px;">11.7</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">24</td>
+							<td style="text-align:left;font-size:16px;">Mažeikių AMS</td>
+							<td style="text-align:right;font-size:16px;">1.7</td>
+							<td style="text-align:right;font-size:16px;">-0.3</td>
+							<td style="text-align:right;font-size:16px;">1.2</td>
+							<td style="text-align:right;font-size:16px;">10.5</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.4</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">25</td>
+							<td style="text-align:left;font-size:16px;">Molėtų AMS</td>
+							<td style="text-align:right;font-size:16px;">2.2</td>
+							<td style="text-align:right;font-size:16px;">0.5</td>
+							<td style="text-align:right;font-size:16px;">-0.1</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.1</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">26</td>
+							<td style="text-align:left;font-size:16px;">Nidos AMS</td>
+							<td style="text-align:right;font-size:16px;">3.0</td>
+							<td style="text-align:right;font-size:16px;">3.1</td>
+							<td style="text-align:right;font-size:16px;">2.5</td>
+							<td style="text-align:right;font-size:16px;color:red;font-weight:bold;">14.6</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.2</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">27</td>
+							<td style="text-align:left;font-size:16px;">Pagėgių AMS</td>
+							<td style="text-align:right;font-size:16px;">1.6</td>
+							<td style="text-align:right;font-size:16px;">-0</td>
+							<td style="text-align:right;font-size:16px;">1.2</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">28</td>
+							<td style="text-align:left;font-size:16px;">Pakruojo AMS</td>
+							<td style="text-align:right;font-size:16px;">1.1</td>
+							<td style="text-align:right;font-size:16px;">-0.5</td>
+							<td style="text-align:right;font-size:16px;">0.1</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.4</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">29</td>
+							<td style="text-align:left;font-size:16px;">Panevėžio AMS</td>
+							<td style="text-align:right;font-size:16px;">2.4</td>
+							<td style="text-align:right;font-size:16px;">0.4</td>
+							<td style="text-align:right;font-size:16px;">0.8</td>
+							<td style="text-align:right;font-size:16px;">9.7</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.3</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">30</td>
+							<td style="text-align:left;font-size:16px;">Plungės AMS</td>
+							<td style="text-align:right;font-size:16px;">0.6</td>
+							<td style="text-align:right;font-size:16px;">-0.8</td>
+							<td style="text-align:right;font-size:16px;">0.4</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.2</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">31</td>
+							<td style="text-align:left;font-size:16px;">Prienų AMS</td>
+							<td style="text-align:right;font-size:16px;">1.8</td>
+							<td style="text-align:right;font-size:16px;">0.7</td>
+							<td style="text-align:right;font-size:16px;">1.2</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">32</td>
+							<td style="text-align:left;font-size:16px;">Raseinių AMS</td>
+							<td style="text-align:right;font-size:16px;">2.0</td>
+							<td style="text-align:right;font-size:16px;">0.2</td>
+							<td style="text-align:right;font-size:16px;">1.1</td>
+							<td style="text-align:right;font-size:16px;">10.8</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">33</td>
+							<td style="text-align:left;font-size:16px;">Rietavo AMS</td>
+							<td style="text-align:right;font-size:16px;">0.5</td>
+							<td style="text-align:right;font-size:16px;color:blue;font-weight:bold;">-2.1</td>
+							<td style="text-align:right;font-size:16px;">0.4</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.3</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">34</td>
+							<td style="text-align:left;font-size:16px;">Rokiškio AMS</td>
+							<td style="text-align:right;font-size:16px;">2.6</td>
+							<td style="text-align:right;font-size:16px;">0.1</td>
+							<td style="text-align:right;font-size:16px;">-0.5</td>
+							<td style="text-align:right;font-size:16px;">9.3</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.1</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">35</td>
+							<td style="text-align:left;font-size:16px;">Skuodo AMS</td>
+							<td style="text-align:right;font-size:16px;">1.6</td>
+							<td style="text-align:right;font-size:16px;">-0.5</td>
+							<td style="text-align:right;font-size:16px;">1.3</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.4</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">36</td>
+							<td style="text-align:left;font-size:16px;">Šakių AMS</td>
+							<td style="text-align:right;font-size:16px;">2.1</td>
+							<td style="text-align:right;font-size:16px;">0.2</td>
+							<td style="text-align:right;font-size:16px;">1.4</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.1</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">37</td>
+							<td style="text-align:left;font-size:16px;">Šalčininkų AMS</td>
+							<td style="text-align:right;font-size:16px;">0.3</td>
+							<td style="text-align:right;font-size:16px;">-0.2</td>
+							<td style="text-align:right;font-size:16px;">-0.3</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">38</td>
+							<td style="text-align:left;font-size:16px;">Šeduvos AMS</td>
+							<td style="text-align:right;font-size:16px;">1.2</td>
+							<td style="text-align:right;font-size:16px;">-0.1</td>
+							<td style="text-align:right;font-size:16px;">0.5</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.1</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">39</td>
+							<td style="text-align:left;font-size:16px;">Šiaulių AMS</td>
+							<td style="text-align:right;font-size:16px;">1.6</td>
+							<td style="text-align:right;font-size:16px;">-0.1</td>
+							<td style="text-align:right;font-size:16px;">0.9</td>
+							<td style="text-align:right;font-size:16px;">9.8</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">40</td>
+							<td style="text-align:left;font-size:16px;">Šilutės AMS</td>
+							<td style="text-align:right;font-size:16px;">2.0</td>
+							<td style="text-align:right;font-size:16px;">1.5</td>
+							<td style="text-align:right;font-size:16px;">1.6</td>
+							<td style="text-align:right;font-size:16px;">12.5</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">41</td>
+							<td style="text-align:left;font-size:16px;">Švenčionių AMS</td>
+							<td style="text-align:right;font-size:16px;">0.4</td>
+							<td style="text-align:right;font-size:16px;">-0.4</td>
+							<td style="text-align:right;font-size:16px;color:blue;font-weight:bold;">-1.4</td>
+							<td style="text-align:right;font-size:16px;">9.8</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">42</td>
+							<td style="text-align:left;font-size:16px;">Tauragės AMS</td>
+							<td style="text-align:right;font-size:16px;">1.7</td>
+							<td style="text-align:right;font-size:16px;">0.5</td>
+							<td style="text-align:right;font-size:16px;">1.3</td>
+							<td style="text-align:right;font-size:16px;">8.8</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.1</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">43</td>
+							<td style="text-align:left;font-size:16px;">Telšių AMS</td>
+							<td style="text-align:right;font-size:16px;">0.9</td>
+							<td style="text-align:right;font-size:16px;">-0.6</td>
+							<td style="text-align:right;font-size:16px;">0.7</td>
+							<td style="text-align:right;font-size:16px;">11.0</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">44</td>
+							<td style="text-align:left;font-size:16px;">Trakų AMS</td>
+							<td style="text-align:right;font-size:16px;">1.2</td>
+							<td style="text-align:right;font-size:16px;">0.4</td>
+							<td style="text-align:right;font-size:16px;">0.7</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">45</td>
+							<td style="text-align:left;font-size:16px;">Ukmergės AMS</td>
+							<td style="text-align:right;font-size:16px;">1.9</td>
+							<td style="text-align:right;font-size:16px;">0.9</td>
+							<td style="text-align:right;font-size:16px;">1.1</td>
+							<td style="text-align:right;font-size:16px;">10.3</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.1</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">46</td>
+							<td style="text-align:left;font-size:16px;">Utenos AMS</td>
+							<td style="text-align:right;font-size:16px;color:red;font-weight:bold;">3.1</td>
+							<td style="text-align:right;font-size:16px;">0.8</td>
+							<td style="text-align:right;font-size:16px;">-0.1</td>
+							<td style="text-align:right;font-size:16px;">9.6</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.1</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">47</td>
+							<td style="text-align:left;font-size:16px;">Varėnos AMS</td>
+							<td style="text-align:right;font-size:16px;">1.7</td>
+							<td style="text-align:right;font-size:16px;">0.8</td>
+							<td style="text-align:right;font-size:16px;">1.5</td>
+							<td style="text-align:right;font-size:16px;">9.2</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">48</td>
+							<td style="text-align:left;font-size:16px;">Ventės AMS</td>
+							<td style="text-align:right;font-size:16px;">2.3</td>
+							<td style="text-align:right;font-size:16px;">2.6</td>
+							<td style="text-align:right;font-size:16px;">2.1</td>
+							<td style="text-align:right;font-size:16px;">13.7</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.1</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">49</td>
+							<td style="text-align:left;font-size:16px;">Vėžaičių AMS</td>
+							<td style="text-align:right;font-size:16px;">1.4</td>
+							<td style="text-align:right;font-size:16px;">0.6</td>
+							<td style="text-align:right;font-size:16px;">1.1</td>
+							<td style="text-align:right;font-size:16px;">11.8</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">50</td>
+							<td style="text-align:left;font-size:16px;">Vilniaus AMS</td>
+							<td style="text-align:right;font-size:16px;">0.5</td>
+							<td style="text-align:right;font-size:16px;">0.3</td>
+							<td style="text-align:right;font-size:16px;">0.2</td>
+							<td style="text-align:right;font-size:16px;">9.4</td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.0</td>
+						</tr>
+						
+            <tr>
+							<td style="text-align:center;font-size:16px;">51</td>
+							<td style="text-align:left;font-size:16px;">Zarasų AMS</td>
+							<td style="text-align:right;font-size:16px;">2.1</td>
+							<td style="text-align:right;font-size:16px;">0.1</td>
+							<td style="text-align:right;font-size:16px;">-1.0</td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;color:red;font-weight:bold;">0.0</td>
+              <td style="text-align:right;font-size:16px;">0.1</td>
+						</tr><tr>
+                            <td style="text-align:center;font-size:16px;"></td>
+							<td style="text-align:left;font-size:16px;"><b>Visoje Lietuvoje</b></td>
+							<td style="text-align:right;font-size:16px;"></td>
+							<td style="text-align:right;font-size:16px;"><b>0.5</b></td>
+							<td style="text-align:right;font-size:16px;"></td>
+							<td style="text-align:right;font-size:16px;"></td>
+              <td style="text-align:right;font-size:16px;"><b></b></td>
+              <td style="text-align:right;font-size:16px;"><b></b></td>
+
+                                  </tr></tbody></table>			</div>
+		</div>
+		
+	</div>
+
+
+</body></html>
