@@ -13,6 +13,7 @@ tasks = {
         "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\copytoother.py"
     ],
     "10:00": [
+        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\scrape.js",
         "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\temp.js",
         "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\copytoother.py"
     ],

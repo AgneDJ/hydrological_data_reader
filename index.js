@@ -369,19 +369,19 @@ const runBasedOnTimeWindow = async () => {
 
     // Clear new data columns before adding
     for (let i = 4; i <= 65; i++) {
-      sheet.getCell(`G${i}`).value = null;
+      sheet.getCell(`H${i}`).value = null;
     }
 
     const columnMapping18 = {
-      4: "G", // CSV column E -> Excel column G
+      4: "H", // CSV column E -> Excel column H
     };
 
-    // Update G2 with the date from weather_data_18.csv
-    sheet.getCell("G2").value = dateFromWeatherData;
+    // Update H2 with the date from weather_data_18.csv
+    sheet.getCell("H2").value = dateFromWeatherData;
 
     await workbook.xlsx.writeFile(pathEx); // Save changes to the Excel file
 
-    console.log(`Updated G2 with date: ${dateFromWeatherData}`);
+    console.log(`Updated H2 with date: ${dateFromWeatherData}`);
 
     // Update the Excel file for 18:10 task
     await updateExcelFromCSV(
