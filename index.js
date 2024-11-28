@@ -301,8 +301,8 @@ const runBasedOnTimeWindow = async () => {
       pathEx, // Excel file to update
       "Pokytis dienos metu", // Sheet to update
       columnMapping13, // Mapping from CSV columns to Excel columns
-      "S", // Pinns in S4:S65 in the Excel sheet
-      "S", // Column P contains pinns to match
+      "T", // Pinns in T4:T65 in the Excel sheet
+      "T", // Column T contains pinns to match
       "10:00" // Only add rows where column D contains 11:00 utc in date-time
     );
   }
@@ -345,8 +345,8 @@ const runBasedOnTimeWindow = async () => {
       pathEx, // Excel file to update
       "Pokytis dienos metu", // Sheet to update
       columnMapping16, // Mapping from CSV columns to Excel columns
-      "S", // Pinns in S4:S65 in the Excel sheet
-      "S", // Column S contains pinns to match
+      "T", // Pinns in T4:T65 in the Excel sheet
+      "T", // Column T contains pinns to match
       "13:00" // Only add rows where column D contains 14:00 utc in date-time
     );
   }
@@ -389,8 +389,8 @@ const runBasedOnTimeWindow = async () => {
       pathEx, // Excel file to update
       "Pokytis dienos metu", // Sheet to update
       columnMapping18, // Mapping from CSV columns to Excel columns
-      "S", // Pinns in S4:S65 in the Excel sheet
-      "S", // Column S contains pinns to match
+      "T", // Pinns in T4:T65 in the Excel sheet
+      "T", // Column T contains pinns to match
       "16:00" // Only add rows where column D contains 16:00 utc in date-time
     );
   }
