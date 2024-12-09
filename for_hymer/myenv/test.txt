@@ -1,0 +1,1389 @@
+<?php
+//session_start();
+error_reporting( error_reporting() & ~E_NOTICE );
+
+/*
+	Paros duomenų lentelės.
+	Vygandas Norvaišas, 2013-06-06
+	Prašau neredaguoti! 
+	Padarius pakietimus, atnaujinti ir paros_duom_lent_eksp.php.
+*/
+	include 'nustatymai/db_prisijungimas.php';
+	include 'moduliai/funkcijos.php';
+
+	$atv_lent='';
+	//Prisijungimas prie duomenų bazės:
+		$prisijungimas = pg_connect($db_prisijungimas) or die('Nepavyko prisijungti prie duomenų bazių serverio!');
+	
+	//Pradiniai nustatymai:		
+		$steb_data = date('Y-m-d', strtotime('now -1 month'));
+		$now_year= date('Y', strtotime('now'));
+		$now_men = date('m', strtotime('now'));
+		$steb_metai = date('Y', strtotime($steb_data));
+		$steb_menuo = date('m', strtotime($steb_data));
+		$st_pinn = '4501';
+		$lent_tipas = 'paros_duom';		
+	function color_flag($flagas)
+	{
+		$color='';
+		if ($flagas==10) {$color=" bgcolor='#c6f7ad'";}
+		if ($flagas>10) {$color=" bgcolor='orange'";}
+		if ($flagas>8999) {$color=" bgcolor='red'";}
+
+		return $color;
+	}
+
+// ---------------------------------------------------------agnepradzia-------
+	// function calculate_column_color($column_values) {
+	// 	$total_cells = count($column_values);
+	// 	$green_count = 0;
+	// 	$red_count = 0;
+
+	// 	foreach ($column_values as $value) {
+	// 		if (strpos($value, "bgcolor='#c6f7ad'") !== false) {
+	// 			$green_count++;
+	// 		} elseif (strpos($value, "bgcolor='red'") !== false) {
+	// 			$red_count++;
+	// 		}
+	// 	}
+
+	// 	// If the entire column is green
+	// 	if ($green_count == $total_cells) {
+	// 		return " bgcolor='#c6f7ad'";
+	// 	}
+	// 	// If at least one cell is missing (sum calculation case)
+	// 	elseif ($total_cells != $green_count + $red_count) {
+	// 		return " bgcolor='red'";
+	// 	}
+	// 	// For averages, max, and min: if at least 10% of cells are red or no color
+	// 	elseif ($red_count >= ceil(0.1 * $total_cells) || $green_count + $red_count < $total_cells) {
+	// 		return " bgcolor='red'";
+	// 	}
+
+	// 	// Default: no color
+	// 	return "";
+	// }
+
+	// function render_aggregate_row($a_pav, $p_pav, $columns, $duom_masyvas) {
+	// 	$output = '<tr><td>' . $p_pav . '</td>';
+	// 	foreach ($columns as $key => $values) {
+	// 		$bgcolor = calculate_column_color($values);
+	// 		$output .= '<td' . $bgcolor . '>' . $duom_masyvas['apsk_duom'][$a_pav][$p_pav][$key] . '</td>';
+	// 	}
+	// 	return $output . '</tr>';
+	// }
+	
+	// function calculate_column_color($daily_flags)
+	// {
+	// 	$flag_counts = array_count_values($daily_flags);
+	// 	$total_flags = count($daily_flags);
+	
+	// 	if (isset($flag_counts[' bgcolor="red"']) && $flag_counts[' bgcolor="red"'] >= 0.1 * $total_flags) {
+	// 		return ' bgcolor="red"';
+	// 	}
+	// 	if (isset($flag_counts[' bgcolor="orange"'])) {
+	// 		return ' bgcolor="orange"';
+	// 	}
+	// 	if (isset($flag_counts[' bgcolor="#c6f7ad"'])) {
+	// 		return ' bgcolor="#c6f7ad"';
+	// 	}
+	// 	return ''; // Default: no color
+	// }
+
+// ------------------------------------------------------agnepabaiga----
+
+
+
+
+			
+	
+	//Formos užklausos vykdymas:
+		if(isset($_REQUEST['rodyti']))
+		{
+			//Pradiniai nustatymai, duomenų gavimas iš formos:
+				$lent_tipas = $_REQUEST['lent_tipas'];
+				$st_pinn = $_REQUEST['st_pinn'];
+				$steb_data = date('Y-m-d H:i', strtotime($_REQUEST['steb_metai'].'-'.$_REQUEST['steb_menuo'].'-01'));
+				$steb_metai = date('Y', strtotime($steb_data));
+				$steb_menuo = date('m', strtotime($steb_data));
+				$steb_prad = date('Y-m-d', strtotime($steb_data.' - 1 day')).' 18:00:59';
+				$steb_pab = date('Y-m-d', strtotime($steb_data.' +1 month -1 day')).' 18:00:59';
+				 if (($now_men==$steb_menuo)&&($now_year==$steb_metai)){ $steb_pab = date('Y-m-d', strtotime('now -1 day')).' 18:00:59';}
+				//print substr($steb_pab,0,;
+				$steb_d_prad = date('Y-m-d', strtotime($steb_data)).' 00:00';
+				$steb_d_pab = date('Y-m-d', strtotime($steb_data.' +1 month')).' 00:00';
+				$steb_sk_men = cal_days_in_month(CAL_GREGORIAN, $steb_menuo, $steb_metai) * 8;				
+				
+				$t_men_vid="";
+				
+				$uzklausa = "SELECT name FROM sreg WHERE pinn = $st_pinn LIMIT 1";
+				$rezultatai = pg_query($prisijungimas, $uzklausa);	
+				$st_pav = pg_fetch_result($rezultatai, 0, 'name');
+				
+				$uzklausa = "SELECT st_type FROM st_types WHERE pinn = $st_pinn LIMIT 1";
+				$rezultatai = pg_query($prisijungimas, $uzklausa);					
+				$st_tipas = pg_fetch_result($rezultatai, 0, 'st_type');
+				
+			//Duomenų masyvo sukūrimas:
+				$duom_masyvas = array();
+				$duom_masyvas['pap_inf']['lent_tipas'] = $lent_tipas;
+				$duom_masyvas['pap_inf']['st_pinn'] = $st_pinn;
+				$duom_masyvas['pap_inf']['st_pav'] = $st_pav;
+				$duom_masyvas['pap_inf']['st_tipas'] = $st_tipas;
+				$duom_masyvas['pap_inf']['steb_data'] = $steb_data;
+				$duom_masyvas['pap_inf']['steb_metai'] = $steb_metai;
+				$duom_masyvas['pap_inf']['steb_menuo'] = $steb_menuo;
+				$duom_masyvas['pap_inf']['lent_tipas'] = $lent_tipas;	
+                 
+			//Paros duomenys:
+				if($lent_tipas == 'paros_duom')
+				{
+					//Duomenų gavimas iš duomenų bazės ir duomenų masyvo užpildymas:			
+						$duom_dienu = array();						
+//						echo $st_tipas;
+						//Lentelė: weather_qc	|| $st_tipas==105					
+							if($st_tipas == 100  || $st_tipas==800 || $st_tipas==130 || $st_tipas == 118 )	
+							{							
+								//AWS stotys:
+	 							/* $uzklausa = "
+											SELECT
+												 pinn, date_trunc('day', obstime + interval '5 hours 59 minutes') AS obstime,
+												avg(t) AS t_avg, avg(t_0) AS t_0_avg, round(max(t_0)) AS t_0_max, min(t_0) AS t_0_min,
+												min(td) AS td_min, avg(w_pres) AS w_pres_avg, max(w_pres) AS w_pres_max, min(w_pres) AS w_pres_min, avg(rh) AS rh_avg, min(rh) AS rh_min, 
+												avg(sat_def) AS sat_def_avg, max(sat_def) AS sat_def_max,
+												avg(p_stat) AS p_stat_avg, max(p_stat) AS p_stat_max, min(p_stat) AS p_stat_min, avg(p_sea) AS p_sea_avg, max(p_sea) AS p_sea_max, min(p_sea) AS p_sea_min, 
+												avg(ws_10min) AS ws_10min_avg, max(ws_10min) AS ws_10min_max,
+												avg(e_snow) AS e_snow_avg, avg(sn_cov_10) AS sn_cov_10_avg, avg(snow_man) AS snow_man_avg
+											FROM weather_qc
+											WHERE obstime > '$steb_prad' AND obstime <= '$steb_pab' AND pinn=$st_pinn
+											GROUP BY pinn, date_trunc('day', obstime + interval '5 hours 59 minutes')
+											ORDER BY obstime 
+											
+											";  */
+									$uzklausa = "select * from daily_f WHERE obstime > '$steb_prad' AND obstime <= '$steb_pab' AND pinn=$st_pinn order by obstime";
+									//echo $uzklausa;
+			
+								$rezultatai = pg_query($prisijungimas, $uzklausa);				
+								for($i=0; $i<pg_num_rows($rezultatai); $i++)
+								{
+									$diena = date('d', strtotime(pg_fetch_result($rezultatai, $i, 'obstime')));
+									$duom_dienu[$diena]['pinn'] = pg_fetch_result($rezultatai, $i, 'pinn');
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 't_day'))) { $duom_dienu[$diena]['t_avg'] = pg_fetch_result($rezultatai, $i, 't_day'); $duom_dienu[$diena]['f_t_avg'] = pg_fetch_result($rezultatai, $i, 'f_t_day');}		
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'tmax_day'))) { $duom_dienu[$diena]['t_max'] = pg_fetch_result($rezultatai, $i, 'tmax_day') ;$duom_dienu[$diena]['f_t_max'] = pg_fetch_result($rezultatai, $i, 'f_tmax_day') ; }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'tmin_day'))) { $duom_dienu[$diena]['t_min'] = pg_fetch_result($rezultatai, $i, 'tmin_day') ;$duom_dienu[$diena]['f_t_min'] = pg_fetch_result($rezultatai, $i, 'f_tmin_day') ; }									
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 't5_day'))) { $duom_dienu[$diena]['t_0_avg'] = pg_fetch_result($rezultatai, $i, 't5_day'); $duom_dienu[$diena]['f_t_0_avg'] = pg_fetch_result($rezultatai, $i, 'f_t5_day'); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 't5max_day'))) { $duom_dienu[$diena]['t_0_max'] = pg_fetch_result($rezultatai, $i, 't5max_day'); $duom_dienu[$diena]['f_t_0_max'] = pg_fetch_result($rezultatai, $i, 'f_t5max_day');}
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 't5min_day'))) { $duom_dienu[$diena]['t_0_min'] = pg_fetch_result($rezultatai, $i, 't5min_day');$duom_dienu[$diena]['f_t_0_min'] = pg_fetch_result($rezultatai, $i, 'f_t5min_day'); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'td_day'))) { $duom_dienu[$diena]['td_min'] = pg_fetch_result($rezultatai, $i, 'td_day'); $duom_dienu[$diena]['f_td_min'] = pg_fetch_result($rezultatai, $i, 'f_td_day');}
+									//if(is_numeric(pg_fetch_result($rezultatai, $i, 'w_pres_avg'))) { $duom_dienu[$diena]['w_pres_avg'] = round(pg_fetch_result($rezultatai, $i, 'w_pres_avg'), 2); }
+									//if(is_numeric(pg_fetch_result($rezultatai, $i, 'w_pres_max'))) { $duom_dienu[$diena]['w_pres_max'] = round(pg_fetch_result($rezultatai, $i, 'w_pres_max'), 2); }
+									//if(is_numeric(pg_fetch_result($rezultatai, $i, 'w_pres_min'))) { $duom_dienu[$diena]['w_pres_min'] = round(pg_fetch_result($rezultatai, $i, 'w_pres_min'), 2); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'rh_day'))) { $duom_dienu[$diena]['rh_avg'] = round(pg_fetch_result($rezultatai, $i, 'rh_day'),0); $duom_dienu[$diena]['f_rh_avg'] = pg_fetch_result($rezultatai, $i, 'f_rh_day');}
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'rh_min_day'))) { $duom_dienu[$diena]['rh_min'] = round(pg_fetch_result($rezultatai, $i, 'rh_min_day'),0); $duom_dienu[$diena]['f_rh_min'] = pg_fetch_result($rezultatai, $i, 'f_rh_min_day');}
+									//if(is_numeric(pg_fetch_result($rezultatai, $i, 'sat_def_avg'))) { $duom_dienu[$diena]['sat_def_avg'] = round(pg_fetch_result($rezultatai, $i, 'sat_def_avg'), 2); }
+									//if(is_numeric(pg_fetch_result($rezultatai, $i, 'sat_def_max'))) { $duom_dienu[$diena]['sat_def_max'] = round(pg_fetch_result($rezultatai, $i, 'sat_def_max'), 2); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'pres_stat_avg_day'))) { $duom_dienu[$diena]['p_stat_avg'] = pg_fetch_result($rezultatai, $i, 'pres_stat_avg_day'); $duom_dienu[$diena]['f_p_stat_avg'] = pg_fetch_result($rezultatai, $i, 'f_pres_stat_avg_day');}
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'pres_stat_avg_day'))) { $duom_dienu[$diena]['p_stat_max'] = pg_fetch_result($rezultatai, $i, 'pres_stat_avg_day'); $duom_dienu[$diena]['f_p_stat_max'] = pg_fetch_result($rezultatai, $i, 'f_pres_stat_avg_day'); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'pres_stat_avg_day'))) { $duom_dienu[$diena]['p_stat_min'] = pg_fetch_result($rezultatai, $i, 'pres_stat_avg_day'); $duom_dienu[$diena]['f_p_stat_min'] = pg_fetch_result($rezultatai, $i, 'f_pres_stat_avg_day');}
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'pres_sea_avg_day'))) { $duom_dienu[$diena]['p_sea_avg'] = pg_fetch_result($rezultatai, $i, 'pres_sea_avg_day'); $duom_dienu[$diena]['f_p_sea_avg'] = pg_fetch_result($rezultatai, $i, 'f_pres_sea_avg_day');}
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'pres_sea_avg_day'))) { $duom_dienu[$diena]['p_sea_max'] = pg_fetch_result($rezultatai, $i, 'pres_sea_avg_day'); $duom_dienu[$diena]['f_p_sea_max'] = pg_fetch_result($rezultatai, $i, 'f_pres_sea_avg_day'); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'pres_sea_avg_day'))) { $duom_dienu[$diena]['p_sea_min'] = pg_fetch_result($rezultatai, $i, 'pres_sea_avg_day'); $duom_dienu[$diena]['f_p_sea_min'] = pg_fetch_result($rezultatai, $i, 'f_pres_sea_avg_day');}
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'ws_avg_day'))) { $duom_dienu[$diena]['ws_10min_avg'] = pg_fetch_result($rezultatai, $i, 'ws_avg_day'); $duom_dienu[$diena]['f_ws_10min_avg'] = pg_fetch_result($rezultatai, $i, 'f_ws_avg_day');}
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'ws_max8_day'))) { $duom_dienu[$diena]['ws_10min_max'] = pg_fetch_result($rezultatai, $i, 'ws_max8_day');$duom_dienu[$diena]['f_ws_10min_max'] = pg_fetch_result($rezultatai, $i, 'f_ws_max8_day'); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'ws_gust_day'))) { $duom_dienu[$diena]['ws_max_3h_max'] = pg_fetch_result($rezultatai, $i, 'ws_gust_day');$duom_dienu[$diena]['f_ws_max_3h_max'] = pg_fetch_result($rezultatai, $i, 'f_ws_gust_day');}
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'rr_day'))) { $duom_dienu[$diena]['rr_sum'] = pg_fetch_result($rezultatai, $i, 'rr_day'); $duom_dienu[$diena]['f_rr_sum'] = pg_fetch_result($rezultatai, $i, 'f_rr_day');}
+									//if(is_numeric(pg_fetch_result($rezultatai, $i, 'e_snow_avg'))) { $duom_dienu[$diena]['e_snow_avg'] = round(pg_fetch_result($rezultatai, $i, 'e_snow_avg'), 0); }
+									//if(is_numeric(pg_fetch_result($rezultatai, $i, 'sn_cov_10_avg'))) { $duom_dienu[$diena]['sn_cov_10_avg'] = round(pg_fetch_result($rezultatai, $i, 'sn_cov_10_avg'), 0); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'snow_day'))) { $duom_dienu[$diena]['snow_man_avg'] = round(pg_fetch_result($rezultatai, $i, 'snow_day'),0); $duom_dienu[$diena]['f_snow_man_avg'] = pg_fetch_result($rezultatai, $i, 'f_snow_day');}
+								}
+								
+									$uzklausa = "select round(avg(t_day),1) as vid_temp from daily_f WHERE obstime > '$steb_prad' AND obstime <= '$steb_pab' AND pinn=$st_pinn";
+									//echo $uzklausa;
+									$rezultatai = pg_query($prisijungimas, $uzklausa);				
+								for($i=0; $i<pg_num_rows($rezultatai); $i++) 
+								{
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'vid_temp'))) { $t_men_vid = pg_fetch_result($rezultatai, $i, 'vid_temp');}
+								}
+															
+								
+														
+								
+							
+													
+								
+									
+							}
+//----------------------------------------------------------------------------------------------------------------------------------
+
+if($st_tipas == 8000 || $st_tipas==105 )	
+							{							
+								//AWS stotys:
+								$uzklausa = "
+											SELECT
+												pinn, date_trunc('day', obstime + interval '5 hours 59 minutes') AS obstime,
+												avg(t) AS t_avg, avg(t_0) AS t_0_avg, round(max(t_0)) AS t_0_max, min(t_0) AS t_0_min,
+												min(td) AS td_min, avg(w_pres) AS w_pres_avg, max(w_pres) AS w_pres_max, min(w_pres) AS w_pres_min, avg(rh) AS rh_avg, min(rh) AS rh_min, 
+												avg(sat_def) AS sat_def_avg, max(sat_def) AS sat_def_max,
+												avg(p_stat) AS p_stat_avg, max(p_stat) AS p_stat_max, min(p_stat) AS p_stat_min, avg(p_sea) AS p_sea_avg, max(p_sea) AS p_sea_max, min(p_sea) AS p_sea_min, 
+												avg(ws_10min) AS ws_10min_avg, max(ws_10min) AS ws_10min_max,
+												avg(e_snow) AS e_snow_avg, avg(sn_cov_10) AS sn_cov_10_avg, avg(snow_man) AS snow_man_avg
+											FROM weather_qc
+											WHERE obstime > '$steb_prad' AND obstime <= '$steb_pab' AND pinn=$st_pinn
+											GROUP BY pinn, date_trunc('day', obstime + interval '5 hours 59 minutes')
+											ORDER BY obstime";
+			
+								$rezultatai = pg_query($prisijungimas, $uzklausa);				
+								for($i=0; $i<pg_num_rows($rezultatai); $i++)
+								{
+									$diena = date('d', strtotime(pg_fetch_result($rezultatai, $i, 'obstime')));
+									$duom_dienu[$diena]['pinn'] = pg_fetch_result($rezultatai, $i, 'pinn');
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 't_avg'))) { $duom_dienu[$diena]['t_avg'] = round(pg_fetch_result($rezultatai, $i, 't_avg'), 1); }									
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 't_0_avg'))) { $duom_dienu[$diena]['t_0_avg'] = round(pg_fetch_result($rezultatai, $i, 't_0_avg'), 0); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 't_0_max'))) { $duom_dienu[$diena]['t_0_max'] = pg_fetch_result($rezultatai, $i, 't_0_max'); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 't_0_min'))) { $duom_dienu[$diena]['t_0_min'] = round(pg_fetch_result($rezultatai, $i, 't_0_min'), 0); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'td_min'))) { $duom_dienu[$diena]['td_min'] = round(pg_fetch_result($rezultatai, $i, 'td_min'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'w_pres_avg'))) { $duom_dienu[$diena]['w_pres_avg'] = round(pg_fetch_result($rezultatai, $i, 'w_pres_avg'), 2); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'w_pres_max'))) { $duom_dienu[$diena]['w_pres_max'] = round(pg_fetch_result($rezultatai, $i, 'w_pres_max'), 2); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'w_pres_min'))) { $duom_dienu[$diena]['w_pres_min'] = round(pg_fetch_result($rezultatai, $i, 'w_pres_min'), 2); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'rh_avg'))) { $duom_dienu[$diena]['rh_avg'] = round(pg_fetch_result($rezultatai, $i, 'rh_avg'), 0); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'rh_min'))) { $duom_dienu[$diena]['rh_min'] = round(pg_fetch_result($rezultatai, $i, 'rh_min'), 0); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'sat_def_avg'))) { $duom_dienu[$diena]['sat_def_avg'] = round(pg_fetch_result($rezultatai, $i, 'sat_def_avg'), 2); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'sat_def_max'))) { $duom_dienu[$diena]['sat_def_max'] = round(pg_fetch_result($rezultatai, $i, 'sat_def_max'), 2); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'p_stat_avg'))) { $duom_dienu[$diena]['p_stat_avg'] = round(pg_fetch_result($rezultatai, $i, 'p_stat_avg'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'p_stat_max'))) { $duom_dienu[$diena]['p_stat_max'] = round(pg_fetch_result($rezultatai, $i, 'p_stat_max'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'p_stat_min'))) { $duom_dienu[$diena]['p_stat_min'] = round(pg_fetch_result($rezultatai, $i, 'p_stat_min'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'p_sea_avg'))) { $duom_dienu[$diena]['p_sea_avg'] = round(pg_fetch_result($rezultatai, $i, 'p_sea_avg'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'p_sea_max'))) { $duom_dienu[$diena]['p_sea_max'] = round(pg_fetch_result($rezultatai, $i, 'p_sea_max'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'p_sea_min'))) { $duom_dienu[$diena]['p_sea_min'] = round(pg_fetch_result($rezultatai, $i, 'p_sea_min'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'ws_10min_avg'))) { $duom_dienu[$diena]['ws_10min_avg'] = round(pg_fetch_result($rezultatai, $i, 'ws_10min_avg'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'ws_10min_max'))) { $duom_dienu[$diena]['ws_10min_max'] = round(pg_fetch_result($rezultatai, $i, 'ws_10min_max'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'e_snow_avg'))) { $duom_dienu[$diena]['e_snow_avg'] = round(pg_fetch_result($rezultatai, $i, 'e_snow_avg'), 0); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'sn_cov_10_avg'))) { $duom_dienu[$diena]['sn_cov_10_avg'] = round(pg_fetch_result($rezultatai, $i, 'sn_cov_10_avg'), 0); }
+									//if(is_numeric(pg_fetch_result($rezultatai, $i, 'snow_man_avg'))) { $duom_dienu[$diena]['snow_man_avg'] = round(pg_fetch_result($rezultatai, $i, 'snow_man_avg'), 0); }
+								}
+								
+								$uzklausa = "
+											SELECT
+											pinn, obstime,(snow_man) AS snow_man_avg
+											FROM weather_qc
+											WHERE obstime > '$steb_prad' AND obstime <= '$steb_pab' AND pinn=$st_pinn and extract(hour from obstime)=6
+											ORDER BY obstime";
+			//echo $uzklausa;
+								$rezultatai = pg_query($prisijungimas, $uzklausa);				
+								for($i=0; $i<pg_num_rows($rezultatai); $i++)
+								{
+									$diena = date('d', strtotime(pg_fetch_result($rezultatai, $i, 'obstime')));
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'snow_man_avg'))) { $duom_dienu[$diena]['snow_man_avg'] = round(pg_fetch_result($rezultatai, $i, 'snow_man_avg'), 0); }
+								}
+								
+								$uzklausa = "select * from get_extremum_daily('$steb_metai-$steb_menuo-01','$steb_pab',$st_pinn)";
+								$uzklausa ="SELECT
+										pinn, date_trunc('day', obstime + interval '3 hours 59 minutes') AS obstime,
+										max(tmax_3h) AS t_max, min(tmin_3h) AS t_min
+									FROM weather_qc
+									WHERE obstime > '".date('Y-m-d H:i:s', strtotime($steb_prad.' +2 hours 59 minutes'))."' AND obstime <= '$steb_pab' AND pinn=$st_pinn
+									GROUP BY pinn, date_trunc('day', obstime + interval '3 hours 59 minutes')
+									ORDER BY obstime";
+//print $steb_pab;
+//print $uzklausa;									//Modifikacija
+									//WHERE obstime > '".date('Y-m-d H:i:s', strtotime($steb_prad.' +2 hours 59 minutes'))."' AND obstime <= '".date('Y-m-d H:i:s', strtotime($steb_pab.' +2 hours 59 minutes'))."' AND pinn=$st_pinn
+									//WHERE obstime > '".date('Y-m-d H:i:s', strtotime($steb_prad.' +2 hours 59 minutes'))."' AND obstime <= '$steb_pab' AND pinn=$st_pinn
+									//
+									//GROUP BY pinn, date_trunc('day', obstime + interval '3 hours 59 minutes')
+									//ORDER BY obstime";
+			
+								$rezultatai = pg_query($prisijungimas, $uzklausa);				
+								for($i=0; $i<pg_num_rows($rezultatai); $i++)
+								{
+									$diena = date('d', strtotime(pg_fetch_result($rezultatai, $i, 'obstime')));
+									$test_month=date('m', strtotime(pg_fetch_result($rezultatai, $i, 'obstime')));
+									$duom_dienu[$diena]['pinn'] = pg_fetch_result($rezultatai, $i, 'pinn');
+									if ($test_month==$steb_menuo){
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 't_max'))) { $duom_dienu[$diena]['t_max'] = pg_fetch_result($rezultatai, $i, 't_max') ; }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 't_min'))) { $duom_dienu[$diena]['t_min'] = pg_fetch_result($rezultatai, $i, 't_min') ; }
+									}
+								}								
+								
+ 								$uzklausa = "
+									SELECT
+										date_trunc('day', obstime + interval '5 hours 59 minutes') AS ws3h_t, max(ws_max_3h) AS ws_max_3h_max
+									FROM weather_qc
+									WHERE obstime > '$steb_prad' AND obstime < '$steb_pab' AND pinn=$st_pinn
+									GROUP BY  ws3h_t
+									ORDER BY ws3h_t"; 
+/*								$uzklausa = "
+									SELECT
+										date_trunc('day', obstime + interval '5 hours 59 minutes') AS ws3h_t, max(ws_max_hw) AS ws_max_3h_max
+									FROM hourly_weather_f
+									WHERE obstime > '$steb_prad' AND obstime < '$steb_pab' AND pinn=$st_pinn
+									GROUP BY  ws3h_t
+									ORDER BY ws3h_t";	*/
+			//date_trunc('day', ws_max_3h_t + interval '5 hours 59 minutes')
+								$rezultatai = pg_query($prisijungimas, $uzklausa);				
+								for($i=0; $i<pg_num_rows($rezultatai); $i++)
+								{
+									$diena = date('d', strtotime(pg_fetch_result($rezultatai, $i, 'ws3h_t')));
+									$duom_dienu[$diena]['pinn'] = $st_pinn;//pg_fetch_result($rezultatai, $i, 'pinn');
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'ws_max_3h_max'))) { $duom_dienu[$diena]['ws_max_3h_max'] = round(pg_fetch_result($rezultatai, $i, 'ws_max_3h_max'), 1); }
+								}								
+													
+								$uzklausa = "
+									SELECT pinn, date_trunc('day', obstime + interval '5 hours 59 minutes') AS obstime, sum(rr_per) AS rr_sum
+									FROM prec_f
+									WHERE obstime > '$steb_prad' AND obstime <= '$steb_pab' AND pinn = $st_pinn
+									AND rr_per >= 0 AND period = 60
+									GROUP BY pinn, date_trunc('day', obstime + interval '5 hours 59 minutes')
+									ORDER BY obstime";
+								$uzklausa = "
+									SELECT pinn, date_trunc('day', obstime + interval '5 hour') AS obstime, sum(rr_per) AS rr_sum
+									FROM prec_f
+									WHERE obstime > '$steb_prad' AND obstime <= '$steb_pab' AND rr_per >= 0 AND pinn=$st_pinn AND period=360
+									GROUP BY pinn, date_trunc('day', obstime + interval '5 hour')
+									ORDER BY obstime";
+								$rezultatai = pg_query($prisijungimas, $uzklausa);				
+								for($i=0; $i<pg_num_rows($rezultatai); $i++)
+								{
+									$diena = date('d', strtotime(pg_fetch_result($rezultatai, $i, 'obstime')));									
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'rr_sum'))) { $duom_dienu[$diena]['rr_sum'] = number_format(round(pg_fetch_result($rezultatai, $i, 'rr_sum'), 1), 1); }
+								}
+									
+							}							
+							
+///----------------------------------------------------------------------------------------------------------------------------------							
+							
+							else if($st_tipas == 116 || $st_tipas == 117 )
+							{
+								//VMS ir PKS stotys:					
+								$uzklausa = "
+									SELECT
+										pinn, date_trunc('day', obstime + interval '5 hours 59 minutes') AS obstime,
+										avg(t) AS t_avg, max(tmax_3h) AS t_max, min(tmin_3h) AS t_min, avg(t_0) AS t_0_avg, max(t_0_max_3h) AS t_0_max, min(t_0_min_3h) AS t_0_min,
+										min(td) AS td_min, avg(w_pres) AS w_pres_avg, max(w_pres) AS w_pres_max, min(w_pres) AS w_pres_min, avg(rh) AS rh_avg, min(rh) AS rh_min, 
+										avg(sat_def) AS sat_def_avg, max(sat_def) AS sat_def_max,
+										avg(p_stat) AS p_stat_avg, max(p_stat) AS p_stat_max, min(p_stat) AS p_stat_min, avg(p_sea) AS p_sea_avg, max(p_sea) AS p_sea_max, min(p_sea) AS p_sea_min, 
+										avg(ws_10min) AS ws_10min_avg, max(ws_10min) AS ws_10min_max, max(ws_max_3h) AS ws_max_3h_max,
+										avg(e_snow) AS e_snow_avg, avg(sn_cov_10) AS sn_cov_10_avg, avg(snow_man) AS snow_man_avg
+									FROM weather_qc
+									WHERE obstime > '$steb_prad' AND obstime <= '$steb_pab' AND pinn=$st_pinn
+									GROUP BY pinn, date_trunc('day', obstime + interval '5 hours 59 minutes')
+									ORDER BY obstime";
+								
+								$rezultatai = pg_query($prisijungimas, $uzklausa);				
+								for($i=0; $i<pg_num_rows($rezultatai); $i++)
+								{
+									$diena = date('d', strtotime(pg_fetch_result($rezultatai, $i, 'obstime')));
+									$duom_dienu[$diena]['pinn'] = pg_fetch_result($rezultatai, $i, 'pinn');
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 't_avg'))) { $duom_dienu[$diena]['t_avg'] = round(pg_fetch_result($rezultatai, $i, 't_avg'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 't_max'))) { $duom_dienu[$diena]['t_max'] = round(pg_fetch_result($rezultatai, $i, 't_max'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 't_min'))) { $duom_dienu[$diena]['t_min'] = round(pg_fetch_result($rezultatai, $i, 't_min'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 't_0_avg'))) { $duom_dienu[$diena]['t_0_avg'] = round(pg_fetch_result($rezultatai, $i, 't_0_avg'), 0); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 't_0_max'))) { $duom_dienu[$diena]['t_0_max'] = round(pg_fetch_result($rezultatai, $i, 't_0_max'), 0); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 't_0_min'))) { $duom_dienu[$diena]['t_0_min'] = round(pg_fetch_result($rezultatai, $i, 't_0_min'), 0); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'td_min'))) { $duom_dienu[$diena]['td_min'] = round(pg_fetch_result($rezultatai, $i, 'td_min'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'w_pres_avg'))) { $duom_dienu[$diena]['w_pres_avg'] = round(pg_fetch_result($rezultatai, $i, 'w_pres_avg'), 2); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'w_pres_max'))) { $duom_dienu[$diena]['w_pres_max'] = round(pg_fetch_result($rezultatai, $i, 'w_pres_max'), 2); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'w_pres_min'))) { $duom_dienu[$diena]['w_pres_min'] = round(pg_fetch_result($rezultatai, $i, 'w_pres_min'), 2); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'rh_avg'))) { $duom_dienu[$diena]['rh_avg'] = round(pg_fetch_result($rezultatai, $i, 'rh_avg'), 0); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'rh_min'))) { $duom_dienu[$diena]['rh_min'] = round(pg_fetch_result($rezultatai, $i, 'rh_min'), 0); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'sat_def_avg'))) { $duom_dienu[$diena]['sat_def_avg'] = round(pg_fetch_result($rezultatai, $i, 'sat_def_avg'), 2); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'sat_def_max'))) { $duom_dienu[$diena]['sat_def_max'] = round(pg_fetch_result($rezultatai, $i, 'sat_def_max'), 2); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'p_stat_avg'))) { $duom_dienu[$diena]['p_stat_avg'] = round(pg_fetch_result($rezultatai, $i, 'p_stat_avg'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'p_stat_max'))) { $duom_dienu[$diena]['p_stat_max'] = round(pg_fetch_result($rezultatai, $i, 'p_stat_max'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'p_stat_min'))) { $duom_dienu[$diena]['p_stat_min'] = round(pg_fetch_result($rezultatai, $i, 'p_stat_min'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'p_sea_avg'))) { $duom_dienu[$diena]['p_sea_avg'] = round(pg_fetch_result($rezultatai, $i, 'p_sea_avg'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'p_sea_max'))) { $duom_dienu[$diena]['p_sea_max'] = round(pg_fetch_result($rezultatai, $i, 'p_sea_max'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'p_sea_min'))) { $duom_dienu[$diena]['p_sea_min'] = round(pg_fetch_result($rezultatai, $i, 'p_sea_min'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'ws_10min_avg'))) { $duom_dienu[$diena]['ws_10min_avg'] = round(pg_fetch_result($rezultatai, $i, 'ws_10min_avg'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'ws_10min_max'))) { $duom_dienu[$diena]['ws_10min_max'] = round(pg_fetch_result($rezultatai, $i, 'ws_10min_max'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'ws_max_3h_max'))) { $duom_dienu[$diena]['ws_max_3h_max'] = round(pg_fetch_result($rezultatai, $i, 'ws_max_3h_max'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'e_snow_avg'))) { $duom_dienu[$diena]['e_snow_avg'] = round(pg_fetch_result($rezultatai, $i, 'e_snow_avg'), 0); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'sn_cov_10_avg'))) { $duom_dienu[$diena]['sn_cov_10_avg'] = round(pg_fetch_result($rezultatai, $i, 'sn_cov_10_avg'), 0); }									
+								}
+								
+								$uzklausa = "
+									SELECT
+										pinn, date_trunc('day', obstime + interval '5 hours 59 minutes') AS obstime,
+										avg(snow_man) AS snow_man_avg
+									FROM weather_qc
+									WHERE obstime > '$steb_prad' AND obstime <= '$steb_pab' AND pinn=$st_pinn AND obstime::text LIKE '%06:00:00'
+									GROUP BY pinn, date_trunc('day', obstime + interval '5 hours 59 minutes')
+									ORDER BY obstime";
+									
+								$rezultatai = pg_query($prisijungimas, $uzklausa);				
+								for($i=0; $i<pg_num_rows($rezultatai); $i++)
+								{
+									$diena = date('d', strtotime(pg_fetch_result($rezultatai, $i, 'obstime')));									
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'snow_man_avg'))) { $duom_dienu[$diena]['snow_man_avg'] = round(pg_fetch_result($rezultatai, $i, 'snow_man_avg'), 0); }
+								}
+								if (!in_array($st_pinn,array(6401,5302,5601,4301,5101,4201,5202	,4302	,5103	,5303	,5301,5201,5402,5501,4401,5104,4501)))
+               { 
+								$uzklausa = "
+									SELECT pinn, date_trunc('day', obstime) AS obstime, sum(rr_per) AS rr_sum
+									FROM prec_f
+									WHERE obstime > '$steb_prad' AND obstime <= '$steb_pab' AND rr_per >= 0 AND pinn = $st_pinn AND period = 720
+									GROUP BY pinn, date_trunc('day', obstime)
+									ORDER BY obstime";
+
+								$rezultatai = pg_query($prisijungimas, $uzklausa);				
+								for($i=0; $i<pg_num_rows($rezultatai); $i++)
+								{
+									$diena = date('d', strtotime(pg_fetch_result($rezultatai, $i, 'obstime')));
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'rr_sum'))) { $duom_dienu[$diena]['rr_sum'] = number_format(round(pg_fetch_result($rezultatai, $i, 'rr_sum'), 1), 1); }
+								}
+               }
+               else { if (strtotime($steb_pab)<strtotime("2018-07-11"))
+                    { 
+								$uzklausa = "
+									SELECT pinn, date_trunc('day', obstime + interval '5 hour') AS obstime, sum(rr_per) AS rr_sum
+									FROM prec_f
+									WHERE obstime > '$steb_prad' AND obstime <= '$steb_pab' AND rr_per >= 0 AND pinn=$st_pinn AND period=360
+									GROUP BY pinn, date_trunc('day', obstime + interval '5 hour')
+									ORDER BY obstime";
+								$rezultatai = pg_query($prisijungimas, $uzklausa);				
+								for($i=0; $i<pg_num_rows($rezultatai); $i++)
+								  {
+									  $diena = date('d', strtotime(pg_fetch_result($rezultatai, $i, 'obstime')));
+									  if(is_numeric(pg_fetch_result($rezultatai, $i, 'rr_sum'))) { $duom_dienu[$diena]['rr_sum'] = number_format(round(pg_fetch_result($rezultatai, $i, 'rr_sum'), 1), 1); }
+							  	}
+                   }  
+                  }       	
+							}						
+							else if($st_tipas == 1050)					
+							{													
+								//MS stotys:
+								$uzklausa = "
+									SELECT
+										pinn, date_trunc('day', obstime + interval '5 hours 59 minutes') AS obstime,
+										avg(t) AS t_avg, max(tmax_3h) AS t_max, min(tmin_3h) AS t_min, avg(t_0) AS t_0_avg, max(t_0_max_3h) AS t_0_max, min(t_0_min_3h) AS t_0_min,
+										min(td) AS td_min, avg(w_pres) AS w_pres_avg, max(w_pres) AS w_pres_max, min(w_pres) AS w_pres_min, avg(rh) AS rh_avg, min(rh) AS rh_min, 
+										avg(sat_def) AS sat_def_avg, max(sat_def) AS sat_def_max,
+										avg(p_stat) AS p_stat_avg, max(p_stat) AS p_stat_max, min(p_stat) AS p_stat_min, avg(p_sea) AS p_sea_avg, max(p_sea) AS p_sea_max, min(p_sea) AS p_sea_min, 
+										avg(ws_10min) AS ws_10min_avg, max(ws_10min) AS ws_10min_max, max(ws_max_3h) AS ws_max_3h_max,
+										avg(e_snow) AS e_snow_avg, avg(sn_cov_10) AS sn_cov_10_avg, avg(snow_man) AS snow_man_avg
+									FROM weather_qc
+									WHERE obstime > '$steb_prad' AND obstime <= '$steb_pab' AND pinn=$st_pinn
+									GROUP BY pinn, date_trunc('day', obstime + interval '5 hours 59 minutes')
+									ORDER BY obstime";
+								$rezultatai = pg_query($prisijungimas, $uzklausa);				
+								for($i=0; $i<pg_num_rows($rezultatai); $i++)
+								{
+									$diena = date('d', strtotime(pg_fetch_result($rezultatai, $i, 'obstime')));
+									$duom_dienu[$diena]['pinn'] = pg_fetch_result($rezultatai, $i, 'pinn');
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 't_avg'))) { $duom_dienu[$diena]['t_avg'] = round(pg_fetch_result($rezultatai, $i, 't_avg'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 't_max'))) { $duom_dienu[$diena]['t_max'] = round(pg_fetch_result($rezultatai, $i, 't_max'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 't_min'))) { $duom_dienu[$diena]['t_min'] = round(pg_fetch_result($rezultatai, $i, 't_min'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 't_0_avg'))) { $duom_dienu[$diena]['t_0_avg'] = round(pg_fetch_result($rezultatai, $i, 't_0_avg'), 0); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 't_0_max'))) { $duom_dienu[$diena]['t_0_max'] = round(pg_fetch_result($rezultatai, $i, 't_0_max'), 0); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 't_0_min'))) { $duom_dienu[$diena]['t_0_min'] = round(pg_fetch_result($rezultatai, $i, 't_0_min'), 0); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'td_min'))) { $duom_dienu[$diena]['td_min'] = round(pg_fetch_result($rezultatai, $i, 'td_min'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'w_pres_avg'))) { $duom_dienu[$diena]['w_pres_avg'] = round(pg_fetch_result($rezultatai, $i, 'w_pres_avg'), 2); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'w_pres_max'))) { $duom_dienu[$diena]['w_pres_max'] = round(pg_fetch_result($rezultatai, $i, 'w_pres_max'), 2); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'w_pres_min'))) { $duom_dienu[$diena]['w_pres_min'] = round(pg_fetch_result($rezultatai, $i, 'w_pres_min'), 2); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'rh_avg'))) { $duom_dienu[$diena]['rh_avg'] = round(pg_fetch_result($rezultatai, $i, 'rh_avg'), 0); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'rh_min'))) { $duom_dienu[$diena]['rh_min'] = round(pg_fetch_result($rezultatai, $i, 'rh_min'), 0); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'sat_def_avg'))) { $duom_dienu[$diena]['sat_def_avg'] = round(pg_fetch_result($rezultatai, $i, 'sat_def_avg'), 2); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'sat_def_max'))) { $duom_dienu[$diena]['sat_def_max'] = round(pg_fetch_result($rezultatai, $i, 'sat_def_max'), 2); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'p_stat_avg'))) { $duom_dienu[$diena]['p_stat_avg'] = round(pg_fetch_result($rezultatai, $i, 'p_stat_avg'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'p_stat_max'))) { $duom_dienu[$diena]['p_stat_max'] = round(pg_fetch_result($rezultatai, $i, 'p_stat_max'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'p_stat_min'))) { $duom_dienu[$diena]['p_stat_min'] = round(pg_fetch_result($rezultatai, $i, 'p_stat_min'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'p_sea_avg'))) { $duom_dienu[$diena]['p_sea_avg'] = round(pg_fetch_result($rezultatai, $i, 'p_sea_avg'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'p_sea_max'))) { $duom_dienu[$diena]['p_sea_max'] = round(pg_fetch_result($rezultatai, $i, 'p_sea_max'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'p_sea_min'))) { $duom_dienu[$diena]['p_sea_min'] = round(pg_fetch_result($rezultatai, $i, 'p_sea_min'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'ws_10min_avg'))) { $duom_dienu[$diena]['ws_10min_avg'] = round(pg_fetch_result($rezultatai, $i, 'ws_10min_avg'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'ws_10min_max'))) { $duom_dienu[$diena]['ws_10min_max'] = round(pg_fetch_result($rezultatai, $i, 'ws_10min_max'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'ws_max_3h_max'))) { $duom_dienu[$diena]['ws_max_3h_max'] = round(pg_fetch_result($rezultatai, $i, 'ws_max_3h_max'), 1); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'e_snow_avg'))) { $duom_dienu[$diena]['e_snow_avg'] = round(pg_fetch_result($rezultatai, $i, 'e_snow_avg'), 0); }
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'sn_cov_10_avg'))) { $duom_dienu[$diena]['sn_cov_10_avg'] = round(pg_fetch_result($rezultatai, $i, 'sn_cov_10_avg'), 0); }									
+								}
+								
+								$uzklausa = "
+									SELECT
+										pinn, date_trunc('day', obstime + interval '5 hours 59 minutes') AS obstime,
+										avg(snow_man) AS snow_man_avg
+									FROM weather_qc
+									WHERE obstime > '$steb_prad' AND obstime <= '$steb_pab' AND pinn=$st_pinn AND obstime::text LIKE '%06:00:00'
+									GROUP BY pinn, date_trunc('day', obstime + interval '5 hours 59 minutes')
+									ORDER BY obstime";
+									
+								$rezultatai = pg_query($prisijungimas, $uzklausa);				
+								for($i=0; $i<pg_num_rows($rezultatai); $i++)
+								{
+									$diena = date('d', strtotime(pg_fetch_result($rezultatai, $i, 'obstime')));									
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'snow_man_avg'))) { $duom_dienu[$diena]['snow_man_avg'] = round(pg_fetch_result($rezultatai, $i, 'snow_man_avg'), 0); }
+								}
+	// 6401,5302,5601,4301,5101,4201,5202	,4302	,5103	,5303	,5301,5201,5402,5501,4401,5104,4501 
+// Pakeisti 59 minutes
+            if (!in_array($st_pinn,array(6401,5302,5601,4301,5101,4201,5202,4302,5103,5303,5301,5201,5402,5501,4401,5104,4501,5401,5102)))
+               { 
+								$uzklausa = "
+									SELECT pinn, date_trunc('day', obstime + interval '5 hour') AS obstime, sum(rr_per) AS rr_sum 
+									FROM prec_f
+									WHERE obstime > '$steb_prad' AND obstime <= '$steb_pab' AND rr_per >= 0 AND pinn=$st_pinn AND period=60
+									GROUP BY pinn, date_trunc('day', obstime + interval '5 hour')
+									ORDER BY obstime";
+								$rezultatai = pg_query($prisijungimas, $uzklausa);				
+								for($i=0; $i<pg_num_rows($rezultatai); $i++)
+								{
+									$diena = date('d', strtotime(pg_fetch_result($rezultatai, $i, 'obstime')));
+									if(is_numeric(pg_fetch_result($rezultatai, $i, 'rr_sum'))) { $duom_dienu[$diena]['rr_sum'] = number_format(round(pg_fetch_result($rezultatai, $i, 'rr_sum'), 1), 1); }
+								}
+               }
+             else { if (strtotime($steb_pab)<strtotime("2018-07-11"))
+                    { 
+//Pakeistos 59 minutes
+								$uzklausa = "
+									SELECT pinn, date_trunc('day', obstime + interval '5 hour') AS obstime, sum(rr_per) AS rr_sum
+									FROM prec_f
+									WHERE obstime > '$steb_prad' AND obstime <= '$steb_pab' AND rr_per >= 0 AND pinn=$st_pinn AND period=360
+									GROUP BY pinn, date_trunc('day', obstime + interval '5 hour')
+									ORDER BY obstime";
+								$rezultatai = pg_query($prisijungimas, $uzklausa);				
+								for($i=0; $i<pg_num_rows($rezultatai); $i++)
+								  {
+									  $diena = date('d', strtotime(pg_fetch_result($rezultatai, $i, 'obstime')));
+									  if(is_numeric(pg_fetch_result($rezultatai, $i, 'rr_sum'))) { $duom_dienu[$diena]['rr_sum'] = number_format(round(pg_fetch_result($rezultatai, $i, 'rr_sum'), 1), 1); }
+							  	}
+                   }  
+                  }                                                
+							}
+						
+						
+							// Helper function to calculate aggregate color based on daily flags
+							function calculate_column_color($daily_flags) {
+								$flag_counts = array_count_values($daily_flags);
+								$total_flags = count($daily_flags);
+							
+								if (isset($flag_counts[' bgcolor="red"']) && $flag_counts[' bgcolor="red"'] >= 0.1 * $total_flags) {
+									return ' bgcolor="red"';
+								}
+								if (isset($flag_counts[' bgcolor="orange"'])) {
+									return ' bgcolor="orange"';
+								}
+								if (isset($flag_counts[' bgcolor="#c6f7ad"'])) {
+									return ' bgcolor="#c6f7ad"';
+								}
+								return ''; // Default: no color
+							}
+							
+							
+							// Dekadų ir mėnesio reikšmių (vid. maks. min.) apskaičiavimas
+							$apsk_pav = array('Vidurkiai', 'Maksimumai', 'Minimumai');
+							$periodu_pav = array('1 dek.', '2 dek.', '3 dek.', 'Mėn.');
+							$ledziami_parm = array(
+								'Vidurkiai' => array('t_avg', 't_max', 't_min', 't_0_avg', 't_0_max', 't_0_min', 'td_min', 'w_pres_avg', 'rh_avg', 'rh_min', 'sat_def_avg', 'sat_def_max', 'p_stat_avg', 'p_sea_avg', 'ws_10min_avg', 'rr_sum', 'snow_man_avg'),
+								'Maksimumai' => array('t_max', 't_0_max', 'w_pres_max', 'sat_def_max', 'p_stat_max', 'p_sea_max', 'ws_10min_max', 'ws_max_3h_max'),
+								'Minimumai' => array('t_min', 't_0_min', 'td_min', 'w_pres_min', 'rh_min', 'p_stat_min', 'p_sea_min')
+							);
+							$duom_par = array();
+							$duom_apsk = array('Vidurkiai' => array(), 'Maksimumai' => array(), 'Minimumai' => array());
+							
+							foreach ($duom_dienu as $diena => $parametrai) {
+								foreach ($parametrai as $param_pav => $param_reiks) {
+									if ($diena >= 1 && $diena <= 10) {
+										$duom_par[$periodu_pav[0]][$param_pav][] = $param_reiks;
+									} else if ($diena > 10 && $diena <= 20) {
+										$duom_par[$periodu_pav[1]][$param_pav][] = $param_reiks;
+									} else if ($diena > 20 && $diena <= 31) {
+										$duom_par[$periodu_pav[2]][$param_pav][] = $param_reiks;
+									}
+									$duom_par[$periodu_pav[3]][$param_pav][] = $param_reiks;
+							
+									if (($param_pav == 't_avg') && ($t_men_vid != "") && ($diena == '01')) {
+										$duom_par[$periodu_pav[3]][$param_pav][] = $t_men_vid;
+									}
+								}
+							}
+							
+							foreach ($periodu_pav as $p_pav) {
+								if (count($duom_par[$p_pav])) {
+									foreach ($duom_par[$p_pav] as $param_pav => $param_reiks) {
+										$reiks_kiek = count($param_reiks);
+										if ($reiks_kiek) {
+											if (is_numeric(array_search($param_pav, $ledziami_parm['Vidurkiai']))) {
+												if ($param_pav == 'rr_sum') {
+													$duom_apsk['Vidurkiai'][$p_pav][$param_pav] = round(array_sum($param_reiks), 1);
+												} else {
+													$duom_apsk['Vidurkiai'][$p_pav][$param_pav] = round(array_sum($param_reiks) / $reiks_kiek, 1);
+													if ($param_pav == 'rh_avg') {
+														$duom_apsk['Vidurkiai'][$p_pav][$param_pav] = round($duom_apsk['Vidurkiai'][$p_pav][$param_pav], 0);
+													}
+													if ($param_pav == 'rh_min') {
+														$duom_apsk['Vidurkiai'][$p_pav][$param_pav] = round($duom_apsk['Vidurkiai'][$p_pav][$param_pav], 0);
+													}
+												}
+											}
+											if (is_numeric(array_search($param_pav, $ledziami_parm['Maksimumai']))) {
+												$duom_apsk['Maksimumai'][$p_pav][$param_pav] = round(max($param_reiks), 1);
+											}
+											if (is_numeric(array_search($param_pav, $ledziami_parm['Minimumai']))) {
+												$duom_apsk['Minimumai'][$p_pav][$param_pav] = round(min($param_reiks), 1);
+												if ($param_pav == 'rh_min') {
+													$duom_apsk['Minimumai'][$p_pav][$param_pav] = round($duom_apsk['Minimumai'][$p_pav][$param_pav], 0);
+												}
+											}
+										}
+									}
+								}
+							}
+							
+							// Rendering table with color_flag logic
+							foreach ($apsk_pav as $a_pav) {
+								if ($a_pav == 'Vidurkiai') {
+									$atv_lent .= '<tr><th colspan="22">' . $a_pav . ' (išskyrus kritulių sumą)</th></tr>';
+								} else {
+									$atv_lent .= '<tr><th colspan="22">' . $a_pav . '</th></tr>';
+								}
+							
+								foreach ($periodu_pav as $p_pav) {
+									if (isset($duom_apsk[$a_pav][$p_pav])) {
+										$atv_lent .= '<tr><td>' . $p_pav . '</td>';
+							
+										foreach ($duom_apsk[$a_pav][$p_pav] as $param_pav => $param_val) {
+											// Gather flags for this parameter across all days
+											$daily_flags = [];
+											foreach ($duom_dienu as $diena => $params) {
+												if (isset($params["f_$param_pav"])) {
+													$daily_flags[] = color_flag($params["f_$param_pav"]);
+												}
+											}
+							
+											// Determine the color for the cell
+											if ($param_pav === 'rr_sum' && $a_pav === 'Vidurkiai') {
+												$has_missing_rr = in_array(' bgcolor="red"', $daily_flags, true);
+												$color = $has_missing_rr ? ' bgcolor="red"' : '';
+											} else {
+												$color = calculate_column_color($daily_flags);
+											}
+							
+											// Add the cell with the calculated color
+											$atv_lent .= '<td' . $color . '>' . $param_val . '</td>';
+										}
+							
+										$atv_lent .= '</tr>';
+									}
+								}
+							}
+							
+							
+
+
+						// ---------------------------------------------------agnepabaiga-------------
+
+					//Gautų ir apskaičiuotų duomenų sujungimas į vieną masyvą:											
+						$duom_masyvas['dienu_duom'] = $duom_dienu;
+						$duom_masyvas['apsk_duom'] = $duom_apsk;
+                        $dirv_caption="Dirvos pav.";
+						if (substr($st_pinn,2,1)==5){$dirv_caption="Oro temp. 5 cm";}
+					//Atvaizdavimo ir exportavimo lentelių sukūrimas:	
+						$atv_lent = '
+							<table class="duom_lent_2c" style="width:100%;">
+								<tr>
+									<th rowspan="3">D.</th>
+									<th colspan="7">Temperatūra, °C</th>
+									<th rowspan="3">Parc.<br />vand.<br />garų<br />slėgis,<br />hPa</th>
+									<th rowspan="2" colspan="2">Santyk.<br />drėgmė, %</th>
+									<th rowspan="2" colspan="2">Drėgnumo<br />deficitas,<br />hPa</th>
+									<th rowspan="2" colspan="2">Atmosferos<br />slėgis, hPa</th>
+									<th colspan="3">Vėjas, m/s</th>
+									<th rowspan="3">Paros<br />kritulių<br />suma,<br />mm</th>
+									<th rowspan="3">Dirvos<br />pav.<br />būklė</th>
+									<th rowspan="2" colspan="2">Sniego danga,<br />06:00 UTC</th>
+								</tr>
+								<tr>
+									<th colspan="3">Oro</th>
+									<th colspan="3">'.$dirv_caption.'</th>
+									<th>Rasos t.</th>
+									<th rowspan="2">Vid.</th>
+									<th colspan="2">Maks.</th>
+								</tr>
+								<tr> 
+									<th>Vid.</th>
+									<th>Maks.</th>
+									<th>Min.</th>
+									<th>Vid.</th>
+									<th>Maks.</th>
+									<th>Min.</th>
+									<th>Min.</th>
+									<th>Vid.</th>
+									<th>Min.</th>
+									<th>Vid.</th>
+									<th>Maks.</th>
+									<th>Stot.<br />lygyje</th>
+									<th>Jūros<br />lygyje</th>
+									<th>Iš 8<br />term.</th>
+									<th>Abs.</th>
+									<th>Balai</th>
+									<th>Storis,<br />cm</th>
+								</tr>';
+
+						foreach($duom_masyvas['dienu_duom'] as $diena => $parametrai)
+						{
+							$atv_lent .= '
+								<tr>
+									<td>'.$diena.'</td>
+									<td'.color_flag($parametrai['f_t_avg']).' title="Flagas yra: '.$parametrai['f_t_avg'].'">'.$parametrai['t_avg'].'</td>
+									<td'.color_flag($parametrai['f_t_max']).' title="Flagas yra: '.$parametrai['f_t_max'].'">'.$parametrai['t_max'].'</td>
+									<td'.color_flag($parametrai['f_t_min']).' title="Flagas yra: '.$parametrai['f_t_min'].'">'.$parametrai['t_min'].'</td>
+									<td'.color_flag($parametrai['f_t_0_avg']).' title="Flagas yra: '.$parametrai['f_t_0_avg'].'">'.$parametrai['t_0_avg'].'</td>
+									<td'.color_flag($parametrai['f_t_0_max']).' title="Flagas yra: '.$parametrai['f_t_0_max'].'">'.$parametrai['t_0_max'].'</td>
+									<td'.color_flag($parametrai['f_t_0_min']).' title="Flagas yra: '.$parametrai['f_t_0_min'].'">'.$parametrai['t_0_min'].'</td>
+									<td'.color_flag($parametrai['f_td_min']).' title="Flagas yra: '.$parametrai['f_td_min'].'">'.$parametrai['td_min'].'</td>
+									<td'.color_flag($parametrai['f_w_pres_avg']).' title="Flagas yra: '.$parametrai['f_w_pres_avg'].'">'.$parametrai['w_pres_avg'].'</td>
+									<td'.color_flag($parametrai['f_rh_avg']).' title="Flagas yra: '.$parametrai['f_rh_avg'].'">'.$parametrai['rh_avg'].'</td>
+									<td'.color_flag($parametrai['f_rh_min']).' title="Flagas yra: '.$parametrai['f_rh_min'].'">'.$parametrai['rh_min'].'</td>
+									<td'.color_flag($parametrai['f_sat_def_avg']).' title="Flagas yra: '.$parametrai['f_sat_def_avg'].'">'.$parametrai['sat_def_avg'].'</td>
+									<td'.color_flag($parametrai['f_sat_def_max']).' title="Flagas yra: '.$parametrai['f_sat_def_max'].'">'.$parametrai['sat_def_max'].'</td>
+									<td'.color_flag($parametrai['f_p_stat_avg']).' title="Flagas yra: '.$parametrai['f_p_stat_avg'].'">'.$parametrai['p_stat_avg'].'</td>
+									<td'.color_flag($parametrai['f_p_sea_avg']).' title="Flagas yra: '.$parametrai['f_p_sea_avg'].'">'.$parametrai['p_sea_avg'].'</td>
+									<td'.color_flag($parametrai['f_ws_10min_avg']).' title="Flagas yra: '.$parametrai['f_ws_10min_avg'].'">'.$parametrai['ws_10min_avg'].'</td>
+									<td'.color_flag($parametrai['f_ws_10min_max']).' title="Flagas yra: '.$parametrai['f_ws_10min_max'].'">'.$parametrai['ws_10min_max'].'</td>
+									<td'.color_flag($parametrai['f_ws_max_3h_max']).' title="Flagas yra: '.$parametrai['f_ws_max_3h_max'].'">'.$parametrai['ws_max_3h_max'].'</td>
+									<td'.color_flag($parametrai['f_rr_sum']).' title="Flagas yra: '.$parametrai['f_rr_sum'].'">'.$parametrai['rr_sum'].'</td>
+									<td'.color_flag($parametrai['f_e_snow_avg']).' title="Flagas yra: '.$parametrai['f_e_snow_avg'].'">'.$parametrai['e_snow_avg'].'</td>
+									<td'.color_flag($parametrai['f_sn_cov_10_avg']).' title="Flagas yra: '.$parametrai['f_sn_cov_10_avg'].'">'.$parametrai['sn_cov_10_avg'].'</td>
+									<td'.color_flag($parametrai['f_snow_man_avg']).' title="Flagas yra: '.$parametrai['f_snow_man_avg'].'">'.$parametrai['snow_man_avg'].'</td>								
+								</tr>';
+						}					
+						
+						foreach($apsk_pav as $a_pav)
+						{							
+							foreach($apsk_pav as $a_pav)
+{   
+    // Adding headers for Vidurkiai, Maksimumai, Minimumai, Suma
+    if($a_pav == 'Vidurkiai') {
+        $atv_lent .= '<tr><th colspan="22">'.$a_pav.' (išskyrus kritulių sumą)</th></tr>';
+    } else {
+        $atv_lent .= '<tr><th colspan="22">'.$a_pav.'</th></tr>';
+    }
+
+    // Loop through each period
+    foreach($periodu_pav as $p_pav)
+    {
+        if(count($duom_masyvas['apsk_duom'][$a_pav]))
+        {
+            $atv_lent .= '<tr><td>'.$p_pav.'</td>';
+            
+            // Initialize an array to store column values for calculating colors
+            $columns = [
+                't_avg' => [],
+                't_max' => [],
+                't_min' => [],
+                't_0_avg' => [],
+                't_0_max' => [],
+                't_0_min' => [],
+                'td_min' => []
+            ];
+
+            // Collect color values for each column
+            foreach($columns as $key => &$values)
+            {
+                foreach($duom_masyvas['dienu_duom'] as $diena => $parametrai)
+                {
+                    $values[] = color_flag($parametrai["f_$key"]);
+                }
+            }
+
+				// Generate cells for the row with calculated background colors
+				foreach($columns as $key => $values)
+				{
+					$bgcolor = calculate_column_color($values);
+					$atv_lent .= '<td'.$bgcolor.'>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav][$key].'</td>';
+				}
+
+				// Repeat the process for other columns like w_pres, rh, etc.
+				if($a_pav == 'Vidurkiai') {
+					$bgcolor = calculate_column_color(array_column($duom_masyvas['dienu_duom'], 'f_w_pres_avg'));
+					$atv_lent .= '<td'.$bgcolor.'>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['w_pres_avg'].'</td>';
+				}
+
+				// Add similar conditions for Maksimumai, Minimumai, and Suma
+				if($a_pav == 'Maksimumai') {
+					$bgcolor = calculate_column_color(array_column($duom_masyvas['dienu_duom'], 'f_w_pres_max'));
+					$atv_lent .= '<td'.$bgcolor.'>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['w_pres_max'].'</td>';
+				}
+
+				if($a_pav == 'Minimumai') {
+					$bgcolor = calculate_column_color(array_column($duom_masyvas['dienu_duom'], 'f_w_pres_min'));
+					$atv_lent .= '<td'.$bgcolor.'>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['w_pres_min'].'</td>';
+				}
+
+				$atv_lent .= '</tr>';
+			}
+		}
+	}
+
+							if($a_pav == 'Vidurkiai') { $atv_lent .= '<tr><th colspan="22">'.$a_pav.' (išskyrus kritulių sumą)</th></tr>'; }
+							else { $atv_lent .= '<tr><th colspan="22">'.$a_pav.'</th></tr>'; }
+							foreach($periodu_pav as $p_pav)
+							{
+								if(count($duom_masyvas['apsk_duom'][$a_pav]))
+								{
+									$atv_lent .= '
+										<tr>								
+											<td>'.$p_pav.'</td>								
+											<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['t_avg'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['t_max'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['t_min'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['t_0_avg'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['t_0_max'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['t_0_min'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['td_min'].'</td>';
+											if($a_pav == 'Vidurkiai') { $atv_lent .= '<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['w_pres_avg'].'</td>'; }
+											if($a_pav == 'Maksimumai') { $atv_lent .= '<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['w_pres_max'].'</td>'; }
+											if($a_pav == 'Minimumai') { $atv_lent .= '<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['w_pres_min'].'</td>'; }
+									$atv_lent .= '
+											<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['rh_avg'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['rh_min'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['sat_def_avg'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['sat_def_max'].'</td>';
+											if($a_pav == 'Vidurkiai') { $atv_lent .= '<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['p_stat_avg'].'</td>'; }
+											if($a_pav == 'Maksimumai') { $atv_lent .= '<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['p_stat_max'].'</td>'; }
+											if($a_pav == 'Minimumai') { $atv_lent .= '<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['p_stat_min'].'</td>'; }
+											if($a_pav == 'Vidurkiai') { $atv_lent .= '<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['p_sea_avg'].'</td>'; }
+											if($a_pav == 'Maksimumai') { $atv_lent .= '<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['p_sea_max'].'</td>'; }
+											if($a_pav == 'Minimumai') { $atv_lent .= '<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['p_sea_min'].'</td>'; }
+									$atv_lent .= '	
+											<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['ws_10min_avg'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['ws_10min_max'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['ws_max_3h_max'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['rr_sum'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['e_snow_avg'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$a_pav][$p_pav]['sn_cov_10_avg'].'</td>
+											<td>'.round($duom_masyvas['apsk_duom'][$a_pav][$p_pav]['snow_man_avg'],0).'</td>
+										</tr>';
+								}
+							}
+						}
+						
+						$atv_lent .= '</table>';
+				}
+			
+			//Vidutinės reikšmės atskirais terminais:
+				if($lent_tipas == 'vid_reiskmes')
+				{
+					//Duomenų gavimas iš duomenų bazės ir duomenų masyvo užpildymas:						
+						$leid_val = array('21', '00', '03', '06', '09', '12', '15', '18');
+						$periodu_pav = array('1 dek.', '2 dek.', '3 dek.', 'Mėn.');
+						$duom_prad = array();
+						foreach($leid_val as $valanda) { foreach($periodu_pav as $periodas) { $duom_prad[$valanda][$periodas] = array(); } }
+						
+						$uzklausa = "
+							SELECT pinn, obstime, t, t_0, td, w_pres, rh, sat_def, p_stat, p_sea, n_man_8, nh_8, ws_10min
+							FROM weather_qc
+							WHERE obstime > '$steb_prad' AND obstime <= '$steb_pab' AND pinn=$st_pinn
+							ORDER BY obstime";
+						$rezultatai = pg_query($prisijungimas, $uzklausa);
+						for($i=0; $i<pg_num_rows($rezultatai); $i++)
+						{							
+							$valanda = date('H', strtotime(pg_fetch_result($rezultatai, $i, 'obstime')));
+							if(is_numeric(array_search($valanda, $leid_val)))
+							{				
+								if($valanda <= 18) { $diena = date('d', strtotime(pg_fetch_result($rezultatai, $i, 'obstime'))); }
+								else { $diena = date('d', strtotime(pg_fetch_result($rezultatai, $i, 'obstime').' +1 day')); }
+								if($diena >= 1 && $diena <= 10) { $dekada = '1 dek.'; }
+								else if($diena > 10 && $diena <= 20) { $dekada = '2 dek.'; }
+								else if($diena > 20 && $diena <= 31) { $dekada = '3 dek.'; }	
+								
+								if(is_numeric(pg_fetch_result($rezultatai, $i, 't'))) { $duom_prad[$valanda][$dekada]['t'][] = pg_fetch_result($rezultatai, $i, 't'); }
+								if(is_numeric(pg_fetch_result($rezultatai, $i, 't_0'))) { $duom_prad[$valanda][$dekada]['t_0'][] = pg_fetch_result($rezultatai, $i, 't_0'); }
+								if(is_numeric(pg_fetch_result($rezultatai, $i, 'td'))) { $duom_prad[$valanda][$dekada]['td'][] = pg_fetch_result($rezultatai, $i, 'td'); }
+								if(is_numeric(pg_fetch_result($rezultatai, $i, 'w_pres'))) { $duom_prad[$valanda][$dekada]['w_pres'][] = pg_fetch_result($rezultatai, $i, 'w_pres'); }
+								if(is_numeric(pg_fetch_result($rezultatai, $i, 'rh'))) { $duom_prad[$valanda][$dekada]['rh'][] = round(pg_fetch_result($rezultatai, $i, 'rh'),0); }
+								if(is_numeric(pg_fetch_result($rezultatai, $i, 'sat_def'))) { $duom_prad[$valanda][$dekada]['sat_def'][] = pg_fetch_result($rezultatai, $i, 'sat_def'); }
+								if(is_numeric(pg_fetch_result($rezultatai, $i, 'p_stat'))) { $duom_prad[$valanda][$dekada]['p_stat'][] = pg_fetch_result($rezultatai, $i, 'p_stat'); }
+								if(is_numeric(pg_fetch_result($rezultatai, $i, 'p_sea'))) { $duom_prad[$valanda][$dekada]['p_sea'][] = pg_fetch_result($rezultatai, $i, 'p_sea'); }
+								if(is_numeric(pg_fetch_result($rezultatai, $i, 'n_man_8'))) { $duom_prad[$valanda][$dekada]['n_man_8'][] = pg_fetch_result($rezultatai, $i, 'n_man_8'); }
+								if(is_numeric(pg_fetch_result($rezultatai, $i, 'nh_8'))) { $duom_prad[$valanda][$dekada]['nh_8'][] = pg_fetch_result($rezultatai, $i, 'nh_8'); }
+								if(is_numeric(pg_fetch_result($rezultatai, $i, 'ws_10min'))) { $duom_prad[$valanda][$dekada]['ws_10min'][] = pg_fetch_result($rezultatai, $i, 'ws_10min'); }
+							}
+						}						
+
+						$uzklausa = "
+							SELECT
+								pinn, obstime, rr_per
+							FROM prec_f
+							WHERE obstime > '$steb_prad' AND obstime <= '$steb_pab' AND pinn=$st_pinn AND period=360
+							ORDER BY obstime";
+						$rezultatai = pg_query($prisijungimas, $uzklausa);				
+						for($i=0; $i<pg_num_rows($rezultatai); $i++)
+						{
+							$valanda = date('H', strtotime(pg_fetch_result($rezultatai, $i, 'obstime')));
+							if(is_numeric(array_search($valanda, $leid_val)))
+							{				
+								if($valanda <= 18) { $diena = date('d', strtotime(pg_fetch_result($rezultatai, $i, 'obstime'))); }
+								else { $diena = date('d', strtotime(pg_fetch_result($rezultatai, $i, 'obstime').' +1 day')); }
+								if($diena >= 1 && $diena <= 10) { $dekada = '1 dek.'; }
+								else if($diena > 10 && $diena <= 20) { $dekada = '2 dek.'; }
+								else if($diena > 20 && $diena <= 31) { $dekada = '3 dek.'; }	
+								
+								if(is_numeric(pg_fetch_result($rezultatai, $i, 'rr_per'))) { $duom_prad[$valanda][$dekada]['rr_per'][] = pg_fetch_result($rezultatai, $i, 'rr_per'); }
+							}
+						}
+						
+						foreach($leid_val as $valanda)
+						{
+							$duom_prad[$valanda]['Mėn.'] = array_merge_recursive($duom_prad[$valanda]['1 dek.'], $duom_prad[$valanda]['2 dek.'], $duom_prad[$valanda]['3 dek.']);
+						}
+						
+					//Vidurkių apskaičiavimas:
+						$duom_apsk = array();					
+						foreach($duom_prad as $valanda => $dekados)
+						{							
+							foreach($dekados as $dekada => $parametrai)
+							{
+								foreach($parametrai as $parametras => $reiksmes)
+								{							
+									if(count($reiksmes))
+									{
+										if($parametras == 'rr_per') { $duom_apsk[$valanda][$dekada][$parametras] = array_sum($reiksmes); }
+										else { $duom_apsk[$valanda][$dekada][$parametras] = round(array_sum($reiksmes) / count($reiksmes), 1);
+												if($parametras == 'snow_man_avg') { $duom_apsk[$valanda][$dekada][$parametras]=round($duom_apsk[$valanda][$dekada][$parametras],0);}
+											}
+									}
+								}
+							}	
+						}
+		
+					//Gautų ir apskaičiuotų duomenų sujungimas į vieną masyvą:											
+						$duom_masyvas['apsk_duom'] = $duom_apsk;		
+			if (substr($st_pinn,2,1)==5){$dirv_caption="Oro temp. 5 cm";}
+					//Atvaizdavimo ir exportavimo lentelių sukūrimas:	
+						$atv_lent = '
+							<table class="duom_lent_2c" style="width:100%;">
+								<tr>
+									<th rowspan="2">Periodas</th>
+									<th colspan="3">Temperatūra, °C</th>
+									<th rowspan="2">Parc. vand.<br />garų slėgis,<br />hPa</th>
+									<th rowspan="2">Santyk.<br />drėgmė, %</th>
+									<th rowspan="2">Drėgnumo<br />deficitas,<br />hPa</th>
+									<th colspan="2">Atmosferos<br />slėgis, hPa</th>
+									<th colspan="2">Debesuotumo<br />kiekis, oktantai</th>
+									<th rowspan="2">Vid. vėjo<br />greitis, m/s</th>
+									<th rowspan="2">Kritulių<br />suma,<br />mm</th>
+								</tr>
+								<tr>
+									<th>Oro</th>
+									<th>'.$dirv_caption.'</th>
+									<th>Rasos t.</th>
+									<th>Stot. lygyje</th>
+									<th>Jūros lygyje</th>
+									<th>Bendras</th>
+									<th>Apatinis</th>
+								</tr>';				
+
+						foreach($leid_val as $valanda)
+						{							
+							$atv_lent .= '<tr><th colspan="13">'.$valanda.' valanda</th></tr>';
+							foreach($periodu_pav as $periodas)
+							{
+								$atv_lent .= '
+										<tr>								
+											<td>'.$periodas.'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$valanda][$periodas]['t'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$valanda][$periodas]['t_0'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$valanda][$periodas]['td'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$valanda][$periodas]['w_pres'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$valanda][$periodas]['rh'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$valanda][$periodas]['sat_def'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$valanda][$periodas]['p_stat'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$valanda][$periodas]['p_sea'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$valanda][$periodas]['n_man_8'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$valanda][$periodas]['nh_8'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$valanda][$periodas]['ws_10min'].'</td>
+											<td>'.$duom_masyvas['apsk_duom'][$valanda][$periodas]['rr_per'].'</td>
+										</tr>';		
+							}
+						}
+					
+						$atv_lent .= '</table>';
+				}
+			
+			//Vėjo duomenys:
+				if($lent_tipas == 'vejo_duom')
+				{
+					//Duomenų gavimas iš duomenų bazės ir duomenų masyvo užpildymas:						
+						$leid_val = array('21', '00', '03', '06', '09', '12', '15', '18');
+						$leid_kryp = array('Š', 'ŠŠR', 'ŠR', 'RŠR', 'R', 'RPR', 'PR', 'PPR', 'P', 'PPV', 'PV', 'VPV', 'V', 'VŠV', 'ŠV', 'ŠŠV', 'nepastovus', 'štilis');
+						$greit_kat = array('0-1', '2-3', '4-5', '6-7', '8-9', '10-11', '12-13', '14-15', '16-17', '18-20', '21-24', '25-28', '29-34', '35-40', '40');
+						$vejo_duom = array();
+						$vejo_men_duom = array();
+						$vejo_greit_duom = array();
+						$vejo_greit_men_duom = array();
+						$mat_kiekis = cal_days_in_month(CAL_GREGORIAN, $steb_menuo, $steb_metai) * count($leid_val);
+
+						$uzklausa = "
+							SELECT pinn, obstime, wd_10min, ws_10min
+							FROM weather_qc
+							WHERE obstime > '$steb_prad' AND obstime <= '$steb_pab' AND obstime::text LIKE '%:00:00' AND pinn=$st_pinn
+							ORDER BY obstime";
+						$rezultatai = pg_query($prisijungimas, $uzklausa);
+						
+						for($i=0; $i<pg_num_rows($rezultatai); $i++)
+						{							
+							$valanda = date('H', strtotime(pg_fetch_result($rezultatai, $i, 'obstime')));
+							$kryptis = pg_fetch_result($rezultatai, $i, 'wd_10min');
+							$greitis = pg_fetch_result($rezultatai, $i, 'ws_10min');
+							if(is_numeric($greitis)) { $greitis = round($greitis); }
+							
+							if(in_array($valanda, $leid_val) && is_numeric($kryptis) && is_numeric($greitis))
+							{				
+								if($greitis < 0.5) { $vejo_duom[$valanda]['štilis'][] = $greitis; }
+								else if($kryptis == 990) { $vejo_duom[$valanda]['nepastovus'][] = $greitis; }
+								else if(($kryptis >= 0 && $kryptis <= 11) || ($kryptis >= 349 && $kryptis <= 360)) { $vejo_duom[$valanda]['Š'][] = $greitis; }
+								else if($kryptis >= 12 && $kryptis <= 33) { $vejo_duom[$valanda]['ŠŠR'][] = $greitis; }
+								else if($kryptis >= 34 && $kryptis <= 56) { $vejo_duom[$valanda]['ŠR'][] = $greitis; }
+								else if($kryptis >= 57 && $kryptis <= 78) { $vejo_duom[$valanda]['RŠR'][] = $greitis; }
+								else if($kryptis >= 79 && $kryptis <= 101) { $vejo_duom[$valanda]['R'][] = $greitis; }
+								else if($kryptis >= 102 && $kryptis <= 123) { $vejo_duom[$valanda]['RPR'][] = $greitis; }
+								else if($kryptis >= 124 && $kryptis <= 146) { $vejo_duom[$valanda]['PR'][] = $greitis; }
+								else if($kryptis >= 147 && $kryptis <= 168) { $vejo_duom[$valanda]['PPR'][] = $greitis; }
+								else if($kryptis >= 169 && $kryptis <= 191) { $vejo_duom[$valanda]['P'][] = $greitis; }
+								else if($kryptis >= 192 && $kryptis <= 213) { $vejo_duom[$valanda]['PPV'][] = $greitis; }
+								else if($kryptis >= 214 && $kryptis <= 236) { $vejo_duom[$valanda]['PV'][] = $greitis; }
+								else if($kryptis >= 237 && $kryptis <= 258) { $vejo_duom[$valanda]['VPV'][] = $greitis; }
+								else if($kryptis >= 259 && $kryptis <= 281) { $vejo_duom[$valanda]['V'][] = $greitis; }
+								else if($kryptis >= 282 && $kryptis <= 303) { $vejo_duom[$valanda]['VŠV'][] = $greitis; }
+								else if($kryptis >= 304 && $kryptis <= 326) { $vejo_duom[$valanda]['ŠV'][] = $greitis; }
+								else if($kryptis >= 327 && $kryptis <= 348) { $vejo_duom[$valanda]['ŠŠV'][] = $greitis; }
+							}
+							
+							if(in_array($valanda, $leid_val) && is_numeric($greitis))
+							{								
+								if($greitis >= 0 && $greitis <= 1) { $vejo_greit_duom[$valanda]['0-1'][] = $greitis; }
+								else if($greitis >= 2 && $greitis <= 3) { $vejo_greit_duom[$valanda]['2-3'][] = $greitis; }
+								else if($greitis >= 4 && $greitis <= 5) { $vejo_greit_duom[$valanda]['4-5'][] = $greitis; }
+								else if($greitis >= 6 && $greitis <= 7) { $vejo_greit_duom[$valanda]['6-7'][] = $greitis; }
+								else if($greitis >= 8 && $greitis <= 9) { $vejo_greit_duom[$valanda]['8-9'][] = $greitis; }
+								else if($greitis >= 10 && $greitis <= 11) { $vejo_greit_duom[$valanda]['10-11'][] = $greitis; }
+								else if($greitis >= 12 && $greitis <= 13) { $vejo_greit_duom[$valanda]['12-13'][] = $greitis; }
+								else if($greitis >= 14 && $greitis <= 15) { $vejo_greit_duom[$valanda]['14-15'][] = $greitis; }
+								else if($greitis >= 16 && $greitis <= 17) { $vejo_greit_duom[$valanda]['16-17'][] = $greitis; }
+								else if($greitis >= 18 && $greitis <= 20) { $vejo_greit_duom[$valanda]['18-20'][] = $greitis; }
+								else if($greitis >= 21 && $greitis <= 24) { $vejo_greit_duom[$valanda]['21-24'][] = $greitis; }
+								else if($greitis >= 25 && $greitis <= 28) { $vejo_greit_duom[$valanda]['25-28'][] = $greitis; }
+								else if($greitis >= 29 && $greitis <= 34) { $vejo_greit_duom[$valanda]['29-34'][] = $greitis; }
+								else if($greitis >= 35 && $greitis <= 40) { $vejo_greit_duom[$valanda]['35-40'][] = $greitis; }
+								else if($greitis > 40) { $vejo_greit_duom[$valanda]['40'][] = $greitis; }
+							}
+						}					
+	
+						foreach($leid_val as $valanda)
+						{							
+							foreach($vejo_duom[$valanda] as $kryptis => $greiciai)	
+							{
+								foreach($greiciai as $greitis)
+								{
+									$vejo_men_duom[$kryptis][] = $greitis;
+								}
+							}
+						}
+						
+						foreach($leid_val as $valanda)
+						{							
+							foreach($vejo_greit_duom[$valanda] as $kategorija => $greiciai)	
+							{
+								foreach($greiciai as $greitis)
+								{
+									$vejo_greit_men_duom[$kategorija][] = $greitis;
+								}
+							}
+						}
+						
+					//Gautų ir apskaičiuotų duomenų sujungimas į vieną masyvą:											
+						$duom_masyvas['vejo_duom'] = $vejo_duom;
+						$duom_masyvas['vejo_men_duom'] = $vejo_men_duom;
+						$duom_masyvas['vejo_greit_duom'] = $vejo_greit_duom;						
+						$duom_masyvas['vejo_greit_men_duom'] = $vejo_greit_men_duom;
+						
+					//Atvaizdavimo ir exportavimo lentelių sukūrimas:	
+						//Pirma vėjo lentelė:
+						$atv_lent = '
+							<table class="duom_lent_2c" style="width:100%;">
+								<tr>
+									<th colspan="36">Vėjo atvejų skaičius (S) ir vidutinis greitis (G, m/s) pagal rumbus atskirais terminais</th>
+								</tr>
+								<tr>
+									<th rowspan="2" style="width:64px;">Terminas</th>
+									<th colspan="2">Š</th>
+									<th colspan="2">ŠŠR</th>
+									<th colspan="2">ŠR</th>
+									<th colspan="2">RŠR</th>
+									<th colspan="2">R</th>
+									<th colspan="2">RPR</th>
+									<th colspan="2">PR</th>
+									<th colspan="2">PPR</th>
+									<th colspan="2">P</th>
+									<th colspan="2">PPV</th>
+									<th colspan="2">PV</th>
+									<th colspan="2">VPV</th>
+									<th colspan="2">V</th>
+									<th colspan="2">VŠV</th>
+									<th colspan="2">ŠV</th>
+									<th colspan="2">ŠŠV</th>
+									<th colspan="2">Nepas.<br />krypt.</th>
+									<th rowspan="2">Štilis</th>
+								</tr>
+								<tr>
+									<th>S</th>
+									<th>G</th>
+									<th>S</th>
+									<th>G</th>
+									<th>S</th>
+									<th>G</th>
+									<th>S</th>
+									<th>G</th>
+									<th>S</th>
+									<th>G</th>
+									<th>S</th>
+									<th>G</th>
+									<th>S</th>
+									<th>G</th>
+									<th>S</th>
+									<th>G</th>
+									<th>S</th>
+									<th>G</th>
+									<th>S</th>
+									<th>G</th>
+									<th>S</th>
+									<th>G</th>
+									<th>S</th>
+									<th>G</th>
+									<th>S</th>
+									<th>G</th>
+									<th>S</th>
+									<th>G</th>
+									<th>S</th>
+									<th>G</th>
+									<th>S</th>
+									<th>G</th>
+									<th>S</th>
+									<th>G</th>
+								</tr>';				
+						
+						foreach($leid_val as $valanda)
+						{							
+							$atv_lent .= '<tr><td>'.$valanda.'</td>';							
+							foreach($leid_kryp as $kryptis)
+							{
+								if(count($duom_masyvas['vejo_duom'][$valanda][$kryptis])) { $atv_lent .= '<td>'.count($duom_masyvas['vejo_duom'][$valanda][$kryptis]).'</td>'; }
+								else { $atv_lent .= '<td></td>'; }
+								if($kryptis != 'štilis')
+								{
+									if(is_array($duom_masyvas['vejo_duom'][$valanda][$kryptis])) { $atv_lent .= '<td>'.array_sum($duom_masyvas['vejo_duom'][$valanda][$kryptis]).'</td>'; }								
+									else { $atv_lent .= '<td></td>'; }
+								}
+							}
+							$atv_lent .= '</tr>';
+						}
+						
+						$atv_lent .= '<tr><td colspan="36" style="height:6px;"></td></tr><tr><td style="text-align:left;">Suma</td>';										
+						foreach($leid_kryp as $kryptis)
+						{
+							if($kryptis != 'štilis')
+							{
+								if(is_array($duom_masyvas['vejo_men_duom'][$kryptis])) { $atv_lent .= '<td></td><td>'.array_sum($duom_masyvas['vejo_men_duom'][$kryptis]).'</td>'; }
+								else { $atv_lent .= '<td></td><td></td>'; }
+							}
+						}
+						
+						$atv_lent .= '<td></td></tr><tr><td style="text-align:left;">Vidutinis</td>';
+						foreach($leid_kryp as $kryptis)
+						{
+							if($kryptis != 'štilis')
+							{
+								if(is_array($duom_masyvas['vejo_men_duom'][$kryptis]) && count($duom_masyvas['vejo_men_duom'][$kryptis])) { $atv_lent .= '<td></td><td>'.round((array_sum($duom_masyvas['vejo_men_duom'][$kryptis])/count($duom_masyvas['vejo_men_duom'][$kryptis])), 1).'</td>'; }
+								else { $atv_lent .= '<td></td><td></td>'; }
+							}
+						}
+										
+						$atv_lent .= '<td></td></tr><tr><td style="text-align:left;">Suma</td>';
+						foreach($leid_kryp as $kryptis)
+						{
+							if(count($duom_masyvas['vejo_men_duom'][$kryptis])) { $atv_lent .= '<td>'.count($duom_masyvas['vejo_men_duom'][$kryptis]).'</td>'; }
+							else { $atv_lent .= '<td></td>'; }
+							
+							if($kryptis != 'štilis')
+							{
+								$atv_lent .= '<td></td>';
+							}
+						}						
+						
+						$atv_lent .= '</tr><tr><td style="text-align:left;">Pasik., %</td>';
+						foreach($leid_kryp as $kryptis)
+						{							
+							if($kryptis != 'štilis')
+							{
+								if(count($duom_masyvas['vejo_men_duom'][$kryptis]))
+								{
+									$atv_lent .= '<td>'.round(count($duom_masyvas['vejo_men_duom'][$kryptis])/($steb_sk_men - count($duom_masyvas['vejo_men_duom']['štilis']))*100, 1).'</td>';
+								}
+								else
+								{
+									$atv_lent .= '<td></td>';
+								}
+								$atv_lent .= '<td></td>';
+							}
+							else
+							{
+								if(count($duom_masyvas['vejo_men_duom'][$kryptis]))
+								{
+									$atv_lent .= '<td>'.round(count($duom_masyvas['vejo_men_duom'][$kryptis])/$steb_sk_men*100, 1).'</td>';
+								}
+								else
+								{
+									$atv_lent .= '<td></td>';
+								}
+							}
+						}
+						
+						$atv_lent .= '
+								</tr>
+							</table>';
+				
+						//Antra vėjo lentelė:
+						$atv_lent .= '
+							<table class="duom_lent_2c" style="width:100%; margin-top:10px;">
+								<tr>
+									<th colspan="16">Vėjo atvejų skaičius</th>
+								</tr>
+								<tr>
+									<th rowspan="2" style="width:64px;">Terminas</th>
+									<th colspan="15">Vėjo greitis, m/s</th>
+								</tr>								
+								<tr>
+									<th>0-1</th>
+									<th>2-3</th>
+									<th>4-5</th>
+									<th>6-7</th>
+									<th>8-9</th>
+									<th>10-11</th>
+									<th>12-13</th>
+									<th>14-15</th>
+									<th>16-17</th>
+									<th>18-20</th>
+									<th>21-24</th>
+									<th>25-28</th>
+									<th>29-34</th>
+									<th>35-40</th>
+									<th>&gt;40</th>
+								</tr>';
+						
+						foreach($leid_val as $valanda)
+						{							
+							$atv_lent .= '<tr><td>'.$valanda.'</td>';							
+							foreach($greit_kat as $kategorija)
+							{
+								if(count($duom_masyvas['vejo_greit_duom'][$valanda][$kategorija])) { $atv_lent .= '<td>'.count($duom_masyvas['vejo_greit_duom'][$valanda][$kategorija]).'</td>'; }
+								else { $atv_lent .= '<td></td>'; }
+							}
+							$atv_lent .= '</tr>';
+						}						
+						
+						$atv_lent .= '<tr><td colspan="16" style="height:6px;"></td></tr><tr><td style="text-align:left;">Suma</td>';										
+						foreach($greit_kat as $kategorija)
+						{
+							if(count($duom_masyvas['vejo_greit_men_duom'][$kategorija])) { $atv_lent .= '<td>'.count($duom_masyvas['vejo_greit_men_duom'][$kategorija]).'</td>'; }
+							else { $atv_lent .= '<td></td>'; }
+						}						
+						
+						$atv_lent .= '</tr><tr><td style="text-align:left;">Pasik., %</td>';
+						foreach($greit_kat as $kategorija)
+						{
+							if(count($duom_masyvas['vejo_greit_men_duom'][$kategorija])) { $atv_lent .= '<td>'.round(count($duom_masyvas['vejo_greit_men_duom'][$kategorija])/$steb_sk_men*100, 0).'</td>'; }
+							else { $atv_lent .= '<td></td>'; }
+						}
+																		
+						$atv_lent .= '
+								</tr>
+							</table>';
+				}
+			
+			//Debesuotumas:
+				if($lent_tipas == 'debesuotumas')
+				{				
+				
+				}
+		}
+	
+	//Atsijungimas nuo duomenų bazės:
+		pg_close($prisijungimas);
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<?php include 'moduliai/xhtml_antraste.php'; ?>
+</head>
+<body>
+	<div id="talpykla">
+		
+		<div id="pagr_blokas">
+		
+			<div id="turinys">	
+				
+			
+				<?php $prisijungimas = pg_connect($db_prisijungimas) or die('Nepavyko prisijungti prie duomenų bazių serverio!'); ?>
+				<form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+					<table class="formos_lent" style="width:822px;">
+						<tr>							
+							<td style="padding:0px 6px;">Stebėjimų data:</td>
+							<td>
+								<input name="steb_metai" type="text" size="4" maxlength="6" value="<?php echo $steb_metai; ?>" />
+								&nbsp;&ndash;&nbsp;
+								<input name="steb_menuo" type="text" size="2" maxlength="4" value="<?php echo $steb_menuo; ?>" />
+							</td>							
+							<td style="padding:0px 6px; border-left:1px solid #999999;">Stotis:</td>
+							<td>
+								<select name="st_pinn" style="width:160px;">
+									<?php
+										$uzklausa = "SELECT pinn, name FROM sreg ORDER BY name COLLATE lt_LT";
+										$rezultatai = pg_query($prisijungimas, $uzklausa);					
+										for($i=0; $i<pg_num_rows($rezultatai); $i++)
+										{
+											echo '<option value="'.pg_fetch_result($rezultatai, $i, 'pinn').'" '.parinkimas(pg_fetch_result($rezultatai, $i, 'pinn'), $st_pinn).'>'.pg_fetch_result($rezultatai, $i, 'name').' ('.pg_fetch_result($rezultatai, $i, 'pinn').')</option>';	
+										}
+									?>
+								</select>
+							</td>
+							<td style="padding:0px 6px; border-left:1px solid #999999;">Lentelės tipas:</td>
+							<td>
+								<select name="lent_tipas" style="width:200px;">
+									<option value="paros_duom" <?php echo parinkimas('paros_duom', $lent_tipas); ?>>Paros duomenys</option>									
+									<option value="vid_reiskmes" <?php echo parinkimas('vid_reiskmes', $lent_tipas); ?>>Vidutinės reikšmės atskirais terminais</option>
+									<option value="vejo_duom" <?php echo parinkimas('vejo_duom', $lent_tipas); ?>>Vėjo duomenys</option>
+									<!--<option value="debesuotumas" <?php echo parinkimas('debesuotumas', $lent_tipas); ?>>Debesuotumas</option>-->	
+								</select>
+							</td>		
+							<td style="padding:0px 6px; border-left:1px solid #999999; text-align:center;">
+								<input name="rodyti" type="submit" value="Rodyti" style="width:80px;" />
+							</td>
+						</tr>
+					</table>
+				</form>
+				 <p style="float:right; margin-top: 15px"></p>
+				<?php
+					if($atv_lent != '')
+					{
+						echo
+							'<form method="post" action="paros_duom_lent_eksp.php">
+								<table class="formos_lent" style="width:200px; margin-top:4px;">
+									<tr>
+										<td style="width:116px; padding:0px 6px;">Duomenų eksportas: </td>
+										<td>						
+											<input name="xls" type="submit" value="" title="Excel XLS" style="width:24px; height:24px; margin:0px; padding:0px; background:url(maketas/graf_elementai/excel_2003_ikona.png) no-repeat; border:none; cursor:pointer;" />
+											<input name="xlsx" type="submit" value="" title="Excel XLSX" style="width:24px; height:24px; margin:0px; padding:0px; background:url(maketas/graf_elementai/excel_2007_ikona.png) no-repeat; border:none; cursor:pointer;" />
+											<input name="duom_masyvas" type="hidden" value="'.htmlspecialchars(serialize($duom_masyvas)).'" />
+										</td>
+									</tr>
+								</table>
+							</form>
+							<br />';
+						echo $atv_lent;		
+					}
+				?>
+				<?php pg_close($prisijungimas); ?>
+			</div>
+		</div>
+		
+	</div>
+</body>
+</html>

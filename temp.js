@@ -1,25 +1,24 @@
-const ExcelJS = require("exceljs");
 const fs = require("fs");
 const path = require("path");
+const ExcelJS = require("exceljs");
 
 const updateLedaiFileFromAllCSVs = async () => {
   const csvFolderPath = String.raw`C:\Users\agned\Desktop\Daily Hydro Situation\hydrological_data_reader`;
-  const excelFilePath = String.raw`C:\Users\agned\Documents\Darbo Dokumentai\HidroDuomenys\Ledui_vid_temp\@Ledų atsiradimas_ežerai,upės.xlsx`;
+  const excelFilePath = String.raw`C:\Users\agned\Documents\Darbo Dokumentai\HidroDuomenys\Ledui_vid_temp\@Ledų atsiradimas_ežerai,upės(versija2).xlsx`;
 
   if (!fs.existsSync(csvFolderPath)) {
     console.error(`CSV folder not found: ${csvFolderPath}`);
     return;
   }
+
   if (!fs.existsSync(excelFilePath)) {
     console.error(`Excel file not found: ${excelFilePath}`);
     return;
   }
 
-  // Get today's date in the format 'YYYY-MM-DD'
   const today = new Date();
-  const todayString = today.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+  const todayString = today.toISOString().split("T")[0];
 
-  // Filter CSV files with today's date in the name
   const csvFiles = fs
     .readdirSync(csvFolderPath)
     .filter(
@@ -46,7 +45,7 @@ const updateLedaiFileFromAllCSVs = async () => {
       continue;
     }
 
-    const csvDate = match[1]; // Extract date from the file name (YYYY-MM-DD)
+    const csvDate = match[1];
     console.log(`Processing CSV file: ${csvFile} for date: ${csvDate}`);
 
     const csvFilePath = path.join(csvFolderPath, csvFile);
@@ -54,10 +53,11 @@ const updateLedaiFileFromAllCSVs = async () => {
     const csvRows = csvData.split("\n").map((row) => row.split(","));
 
     const year = today.getFullYear();
-    const month = today.getMonth() + 1; // Month is 0-based, so +1
+    const month = today.getMonth() + 1;
     const isJanToApr = month >= 1 && month <= 4;
 
-    const valuesToFetch = isJanToApr
+    // Define two sets of mappings for D and E columns
+    const valuesToFetchD = isJanToApr
       ? {
           D51: 84,
           D15: 85,
@@ -74,19 +74,51 @@ const updateLedaiFileFromAllCSVs = async () => {
           D48: 96,
         }
       : {
-          D51: 104,
-          D15: 105,
-          D19: 106,
-          D40: 107,
-          D30: 108,
-          D44: 109,
-          D47: 110,
-          D23: 111,
-          D3: 112,
-          D33: 113,
-          D41: 114,
-          D46: 115,
-          D48: 116,
+          D51: 118,
+          D15: 119,
+          D19: 120,
+          D40: 121,
+          D30: 122,
+          D44: 123,
+          D47: 124,
+          D23: 125,
+          D3: 126,
+          D33: 127,
+          D41: 128,
+          D46: 129,
+          D48: 130,
+        };
+
+    const valuesToFetchE = isJanToApr
+      ? {
+          E51: 101,
+          E15: 102,
+          E19: 103,
+          E40: 104,
+          E30: 105,
+          E44: 106,
+          E47: 107,
+          E23: 108,
+          E3: 109,
+          E33: 110,
+          E41: 111,
+          E46: 112,
+          E48: 113,
+        }
+      : {
+          E51: 135,
+          E15: 136,
+          E19: 137,
+          E40: 138,
+          E30: 139,
+          E44: 140,
+          E47: 141,
+          E23: 142,
+          E3: 143,
+          E33: 144,
+          E41: 145,
+          E46: 146,
+          E48: 147,
         };
 
     const sheetName = `${year}_LA`;
@@ -96,10 +128,7 @@ const updateLedaiFileFromAllCSVs = async () => {
       continue;
     }
 
-    const dateRow = isJanToApr ? 83 : 103;
-    console.log(
-      `Searching for date '${csvDate}' in row ${dateRow} of sheet '${sheetName}'`
-    );
+    const dateRow = isJanToApr ? 83 : 117;
 
     let columnIndex = null;
     sheet.getRow(dateRow).eachCell((cell, colNumber) => {
@@ -118,7 +147,27 @@ const updateLedaiFileFromAllCSVs = async () => {
       continue;
     }
 
-    for (const [csvCell, targetRow] of Object.entries(valuesToFetch)) {
+    // Update values for D columns
+    for (const [csvCell, targetRow] of Object.entries(valuesToFetchD)) {
+      const [colLetter, rowNumber] = [
+        csvCell[0],
+        parseInt(csvCell.substring(1), 10),
+      ];
+      const value = csvRows[rowNumber - 1]?.[colLetter.charCodeAt(0) - 65];
+
+      if (value) {
+        const targetCell = sheet.getCell(targetRow, columnIndex);
+        targetCell.value = parseFloat(value);
+        console.log(
+          `Updated ${targetCell.address} with value from ${csvCell}: ${value}`
+        );
+      } else {
+        console.warn(`Value not found for ${csvCell} in the CSV file.`);
+      }
+    }
+
+    // Update values for E columns
+    for (const [csvCell, targetRow] of Object.entries(valuesToFetchE)) {
       const [colLetter, rowNumber] = [
         csvCell[0],
         parseInt(csvCell.substring(1), 10),

@@ -3,7 +3,7 @@ import re
 from datetime import datetime
 
 # Load the data file
-file_path = r"c:\Users\agned\Documents\Darbo Dokumentai\HidroDuomenys\extracted_data.csv"
+file_path = r"C:\Users\agned\Desktop\Daily Hydro Situation\hydrological_data_reader\for_hymer\extracted_data.csv"
 with open(file_path, 'r', encoding='utf-8') as file:
     lines = file.readlines()
 

@@ -21,15 +21,28 @@ const fs = require("fs");
 
   let allData = [];
 
-  for (var i = 0; i < 99; i++) {
-    console.log(`Clicking location at i: ${i}`);
-    await page.evaluate((i) => {
-      myclick(i);
-    }, i);
-    await new Promise((resolve) => setTimeout(resolve, 5000));
-
+  for (let i = 0; i < 99; i++) {
+    console.log(`Processing location at index: ${i}`);
     try {
+      // Click the location using the myclick function
+      const result = await page.evaluate((i) => {
+        if (typeof myclick === "function") {
+          myclick(i);
+        } else {
+          throw new Error("myclick function not found on page.");
+        }
+      }, i);
+
+      if (result instanceof Error) {
+        throw result;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+
+      // Wait for the data window to appear
       await page.waitForSelector(".gm-style-iw-d", { timeout: 30000 });
+
+      // Extract the data from the info window
       const data = await page.evaluate(() => {
         const element = document.querySelector(".gm-style-iw-d");
         return element ? element.textContent.trim() : null;
@@ -37,20 +50,17 @@ const fs = require("fs");
 
       if (data) {
         console.log(`Data extracted: ${data}`);
-        // Split data into cells for CSV (assuming comma separation for demonstration)
-        allData.push(data.split(","));
+        allData.push(data.split(",")); // Split data for CSV
       } else {
         console.log("No data found for this location.");
       }
 
       // Close the info window by clicking off of it
-      await page.mouse.click(
-        locations[i % locations.length].x + 20,
-        locations[i % locations.length].y + 20
-      );
+      const location = locations[i % locations.length];
+      await page.mouse.click(location.x + 20, location.y + 20);
       await new Promise((resolve) => setTimeout(resolve, 5000));
     } catch (error) {
-      console.error("Error extracting data:", error);
+      console.error(`Error during iteration ${i}:`, error.message);
     }
   }
 
@@ -62,10 +72,21 @@ const fs = require("fs");
   if (uniqueData.length > 0) {
     const csvContent = uniqueData.map((row) => row.join(",")).join("\n");
 
-    fs.writeFileSync("extracted_data.csv", csvContent, "utf-8");
-    console.log("Data saved to extracted_data.csv");
+    try {
+      // Optional: Delete the old file to ensure no residual data
+      if (fs.existsSync("extracted_data.csv")) {
+        fs.unlinkSync("extracted_data.csv");
+        console.log("Old file removed successfully.");
+      }
+
+      // Write the new data
+      fs.writeFileSync("extracted_data.csv", csvContent, "utf-8");
+      console.log("Data saved to extracted_data.csv");
+    } catch (error) {
+      console.error("Error saving data to CSV:", error.message);
+    }
   } else {
-    console.log("No data extracted to save.");
+    console.log("No new data extracted to save.");
   }
 
   await browser.close();

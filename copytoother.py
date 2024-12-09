@@ -57,8 +57,8 @@ destination_folder = r"\\192.168.1.30\Dokumentai\PPS\2. Išoriniai\Hidrologinės
 copy_files_from_folder(source_folder, destination_folder)
 
 # Paths for the new file to be copied
-new_source_file = r"C:\Users\agned\Documents\Darbo Dokumentai\HidroDuomenys\Ledui_vid_temp\@Ledų atsiradimas_ežerai,upės.xlsx"
-new_destination_file = r"\\192.168.1.30\Dokumentai\PPS\2. Išoriniai\Hidrologinės prognozės\@ Prognozės\Prognozės\Ledai\@Ledų atsiradimas_ežerai,upės.xlsx"
+new_source_file = r"C:\Users\agned\Documents\Darbo Dokumentai\HidroDuomenys\Ledui_vid_temp\@Ledų atsiradimas_ežerai,upės(versija2).xlsx"
+new_destination_file = r"\\192.168.1.30\Dokumentai\PPS\2. Išoriniai\Hidrologinės prognozės\@ Prognozės\Prognozės\Ledai\@Ledų atsiradimas_ežerai,upės(versija2).xlsx"
 
 # Copy the new file with a fallback mechanism
 copy_with_fallback(new_source_file, new_destination_file)
