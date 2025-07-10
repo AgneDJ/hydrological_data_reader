@@ -187,7 +187,7 @@ const runBasedOnTimeWindow = async () => {
   console.log(`Current time: ${currentHour}:${currentMinute}`);
 
   // 07:00 Task
-  if (currentHour >= 6 && currentHour < 9) {
+  if (currentHour >= 6 && currentHour < 9.3) {
     console.log("Starting task: 07:00 for sheet: Paros pokytis");
 
     // Fetch weather data for the 07:00 task

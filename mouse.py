@@ -1,83 +1,48 @@
-import schedule
-import subprocess
-import time
-import pyautogui
 from datetime import datetime, timedelta
-
-# Define paths for the scripts
-tasks = {
-    "07:10": [
-        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\index.js",
-        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\index.js",
-        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\excel_table.py",
-        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\copytoother.py"
-    ],
-    "10:00": [
-        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\scrape.js",
-        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\temp.js",
-        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\copytoother.py"
-    ],
-    "13:10": [
-        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\index.js",
-        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\index.js",
-        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\excel_table.py",
-        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\copytoother.py"
-    ],
-    "16:10": [
-        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\index.js",
-        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\index.js",
-        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\excel_table.py",
-        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\copytoother.py"
-    ],
-    "18:20": [
-        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\index.js",
-        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\index.js",
-        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\for_hymer\\excel_table.py",
-        "C:\\Users\\agned\\Desktop\\Daily Hydro Situation\\hydrological_data_reader\\copytoother.py"
-    ]
-}
-
-# Coordinates for Monitor 1
-target_x = 661  # X-coordinate
-target_y = 815  # Y-coordinate
+import pyautogui
+import time
+import subprocess
+import schedule
+print("🟢 Script started")
 
 
-def run_script(script_path):
-    if script_path.endswith('.js'):
-        subprocess.run(["node", script_path], check=True)
-    elif script_path.endswith('.py'):
-        subprocess.run(["python", script_path], check=True)
-    print("Script Success:", script_path)
+print("🟢 All imports successful")
+
+remote_ip = "172.20.10.151"
+target_x, target_y = 661, 815
 
 
-def perform_click_action():
+def launch_rdp_and_click():
+    now = datetime.now().strftime("%H:%M:%S")
+    print(f"✅ Task triggered at {now}")
+    try:
+        subprocess.Popen(["mstsc", "/v:" + remote_ip])
+        print(f"🖥️ RDP launched to {remote_ip} @ {now}")
+    except Exception as e:
+        print(f"❌ Failed to start RDP session: {e}")
+    time.sleep(1)
     pyautogui.moveTo(target_x, target_y)
     pyautogui.click()
-    print(f"Mouse moved to ({target_x}, {target_y}) and clicked at {
-          datetime.now().strftime('%H:%M:%S')}")
+    print(f"🖱️ Mouse clicked at ({target_x}, {target_y}) @ {now}")
 
 
-def schedule_task_with_clicks(run_time, scripts):
-    # Schedule the pyautogui action 10 minutes before the task
-    time_before = (datetime.strptime(run_time, "%H:%M") -
-                   timedelta(minutes=10)).strftime("%H:%M")
-    schedule.every().day.at(time_before).do(perform_click_action)
+# Force test 1 minute in the future
+future_time = (datetime.now() + timedelta(minutes=1)).strftime("%H:%M")
+rdp_times = [future_time]
 
-    # Schedule the main task
-    for script in scripts:
-        schedule.every().day.at(run_time).do(run_script, script)
+print("📅 Scheduling tasks:")
+for t in rdp_times:
+    schedule.every().day.at(t).do(launch_rdp_and_click)
+    print(f"✅ Scheduled RDP + click at {t}")
 
-    # Schedule the pyautogui action 10 minutes after the task
-    time_after = (datetime.strptime(run_time, "%H:%M") +
-                  timedelta(minutes=10)).strftime("%H:%M")
-    schedule.every().day.at(time_after).do(perform_click_action)
+print("\n🧾 Registered schedule:")
+for job in schedule.jobs:
+    print("•", job)
 
+print(
+    f"\n⏳ Scheduler running. Waiting for tasks... System time is {datetime.now().strftime('%H:%M:%S')}\n")
 
-# Schedule each task with clicks before and after
-for run_time, scripts in tasks.items():
-    schedule_task_with_clicks(run_time, scripts)
-
-# Run the scheduler
 while True:
+    print(datetime.now().strftime("%H:%M:%S"), "- checking...")
     schedule.run_pending()
-    time.sleep(1)  # Prevents high CPU usage
+    time.sleep(0.5)

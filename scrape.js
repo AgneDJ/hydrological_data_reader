@@ -1,13 +1,15 @@
-const puppeteer = require("puppeteer");
+const puppeteer = require("puppeteer-extra");
+const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 const fs = require("fs");
 const path = require("path");
 
-// Delay function for waiting
+// Apply stealth plugin to reduce detection chances
+puppeteer.use(StealthPlugin());
+
+// Delay function
 const delay = (time) => new Promise((resolve) => setTimeout(resolve, time));
 
-// Function to scrape data from the iframe and save it to a date-specific CSV
 const scrapeDuomLentTable = async () => {
-  // Generate the file name with today's date
   const today = new Date();
   const dateString = `${today.getFullYear()}-${String(
     today.getMonth() + 1
@@ -15,22 +17,41 @@ const scrapeDuomLentTable = async () => {
   const outputCsvFile = `table_data_duom_lent_${dateString}.csv`;
 
   console.log(`Starting data scraping for ${outputCsvFile}`);
+
   let browser;
+  let page;
 
   try {
-    // Launch Puppeteer
+    // Launch Puppeteer with additional flags
     browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      // If you want to use a local installation of Chrome, uncomment the line below and adjust the path:
+      // executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      headless: false, // Change to true after debugging
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-features=HttpsFirstBalancedModeAutoEnable",
+        "--disable-blink-features=AutomationControlled",
+        "--disable-extensions",
+        "--incognito",
+      ],
     });
 
-    const page = await browser.newPage();
-    // Navigate to the main page
+    page = await browser.newPage();
+
+    // Set a common user-agent string
+    await page.setUserAgent(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36"
+    );
+
+    // Navigate to the main page (verify the URL is correct)
+    console.log("Navigating to the website...");
     await page.goto("http://himed.meteo.lt/index.php/biuletenis/", {
+      waitUntil: "networkidle2",
       timeout: 180000,
     });
 
-    // Wait for the iframe to load
+    // Wait for the iframe to appear
     console.log("Waiting for the iframe to load...");
     await page.waitForSelector("iframe[src*='maksimum_data.php']", {
       timeout: 120000,
@@ -44,38 +65,45 @@ const scrapeDuomLentTable = async () => {
       throw new Error("Failed to access iframe content.");
     }
 
-    // Wait for the table with class 'duom_lent' inside the iframe
+    // Wait for the table inside the iframe
     console.log("Waiting for the table inside the iframe...");
     await iframe.waitForSelector("table.duom_lent", { timeout: 120000 });
 
     // Extract table data
+    console.log("Extracting table data...");
     const tableData = await iframe.evaluate(() => {
-      const rows = Array.from(document.querySelectorAll("table.duom_lent tr"));
-      return rows.map((row) => {
-        const cells = Array.from(row.querySelectorAll("th, td"));
-        return cells.map((cell) => cell.textContent.trim()); // Extract text content and trim whitespace
-      });
+      return Array.from(document.querySelectorAll("table.duom_lent tr")).map(
+        (row) =>
+          Array.from(row.querySelectorAll("th, td")).map((cell) =>
+            cell.textContent.trim()
+          )
+      );
     });
 
-    // Convert the table data into CSV format
+    if (tableData.length === 0) {
+      throw new Error("No table data found.");
+    }
+
+    // Convert table data to CSV format
     const csvContent = tableData.map((row) => row.join(",")).join("\n");
 
-    // Save the CSV content to a file
+    // Save CSV file
     const outputPath = path.join(__dirname, outputCsvFile);
     fs.writeFileSync(outputPath, csvContent, "utf8");
-
     console.log(`Table data saved to: ${outputPath}`);
   } catch (error) {
     console.error(`Error during scraping: ${error.message}`);
-    // Save HTML for debugging
-    if (browser) {
+
+    if (page) {
+      // Save screenshot and HTML for debugging
+      await page.screenshot({ path: "debug.png", fullPage: true });
       const html = await page.content();
       fs.writeFileSync("debug.html", html);
+      console.log("Saved debug information (debug.png, debug.html)");
     }
   } finally {
     if (browser) await browser.close();
   }
 };
 
-// Call the function
 scrapeDuomLentTable();
